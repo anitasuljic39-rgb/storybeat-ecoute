@@ -34,8 +34,12 @@ h1{font-family:var(--display);font-weight:800;font-size:23px;line-height:1.2;mar
 </div>
 <script>
 const SITE='https://ecoute.storybeat.fr/';
+const UPSELL_KEY='storybeat_upsell_id';
 const app=document.getElementById('app');
-const id=new URLSearchParams(location.search).get('id');
+// On détermine l'id : d'abord ?id= dans l'URL (pratique pour les tests),
+// sinon la version déjà possédée, mémorisée dans localStorage avant l'achat Stripe.
+let id=new URLSearchParams(location.search).get('id');
+if(!id){ try{ id=localStorage.getItem(UPSELL_KEY); }catch(e){ id=null; } }
 
 // Inverse le dernier suffixe -a/-b (et rien d'autre dans l'id)
 function invert(rawId){
@@ -61,6 +65,8 @@ const other=invert(id);
 if(!other){
   showError();
 }else{
+  // On efface la clé pour ne pas la réutiliser par erreur lors d'une visite ultérieure.
+  try{ localStorage.removeItem(UPSELL_KEY); }catch(e){}
   const target=SITE+'?id='+encodeURIComponent(other);
   app.innerHTML=`
     <div class="card">
