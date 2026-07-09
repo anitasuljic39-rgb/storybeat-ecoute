@@ -52,13 +52,14 @@ video{width:100%;border-radius:18px;margin-top:8px;background:#000}
 @keyframes upsellPulse{0%,100%{box-shadow:0 12px 34px -12px rgba(255,46,136,.5)}50%{box-shadow:0 20px 54px -6px rgba(255,46,136,.9)}}
 @keyframes upsellSweep{0%{transform:skewX(-20deg) translateX(-250%)}45%,100%{transform:skewX(-20deg) translateX(420%)}}
 @media (prefers-reduced-motion:reduce){.upsell-btn{animation:none;box-shadow:0 14px 44px -8px rgba(255,46,136,.75)}.upsell-btn::before{animation:none;display:none}}
+@media (max-width:400px){.upsell-btn{font-size:14.5px;padding:15px 16px;gap:7px}}
 .lyrics{margin-top:30px;text-align:left}
 .lyrics h2{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;text-align:center}
 .lyrics .part{margin-bottom:18px}
 .lyrics .lab{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--pink);font-weight:700;margin-bottom:6px}
 .lyrics p{color:rgba(255,255,255,.9);font-size:16px;line-height:1.7}
 .share{margin-top:32px;text-align:center}
-.share .lab2{font-size:13px;color:var(--muted);margin-bottom:14px}
+.share .lab2{font-family:var(--display);font-size:16px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:16px}
 .share-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .sbtn{border:1px solid var(--line);background:var(--card-hi);color:var(--white);border-radius:14px;padding:13px 20px;font-family:var(--body);font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:border-color .2s,transform .1s}
 .sbtn:hover{border-color:var(--pink);transform:translateY(-1px)}
@@ -129,7 +130,7 @@ function render(d){
       <div class="dl-wrap">
         <button class="dl-btn" id="dlbtn">⬇️ Télécharger ma chanson</button>
         <a class="dl-fallback" id="dlfallback" href="${d.media}" target="_blank" rel="noopener" style="display:none">Ouvrir le fichier ↗</a>
-        <div><button class="upsell-btn" id="upsellbtn" style="display:none"><span class="upsell-ico">🎵</span><span class="upsell-txt">Obtenir l'autre version pour <span class="upsell-em">seulement</span> 9,90 €</span></button></div>
+        <div><button class="upsell-btn" id="upsellbtn" style="display:none"><span class="upsell-ico">🎵</span><span class="upsell-txt">Obtenir l'autre version pour <span class="upsell-em">seulement</span> <span style="white-space:nowrap">9,90&nbsp;€</span></span></button></div>
       </div>
     </div>
     ${lyrics?`<div class="lyrics"><h2>Les paroles</h2>${lyrics}</div>`:''}
