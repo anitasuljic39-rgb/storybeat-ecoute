@@ -1,0 +1,380 @@
+# StoryBeat — Outil « Générateur de fiche » (formulaire privé)
+
+**Dépôt : `storybeat-ecoute` (branche main).** Publié sur `ecoute.storybeat.fr`.
+
+## But
+
+Créer une page-outil privée à `ecoute.storybeat.fr/outil/` où Anita remplit un formulaire (prénom, titre, paroles, etc.) et **télécharge la fiche `.json` prête**, qu'elle n'a plus qu'à déposer dans le dossier `chansons/` du dépôt.
+
+Rappel du circuit (l'outil NE téléverse PAS les fichiers lourds) :
+
+- Les fichiers MP3 / MP4 / photos vont d'abord sur **Bunny** (`storybeat.b-cdn.net`).  
+- L'outil fabrique seulement la **fiche JSON** qui pointe vers ces fichiers.
+
+## Format EXACT de la fiche à produire (identique à chansons/nora.json)
+
+{
+
+  "prenom": "Sarah",
+
+  "titre": "…",
+
+  "pour": "Pour Sarah, avec tout mon cœur ❤️",
+
+  "type": "audio",
+
+  "media": "https://storybeat.b-cdn.net/sarah.mp3",
+
+  "cover": "S",
+
+  "paroles": \[
+
+    { "label": "Couplet 1", "texte": "…\\n…" },
+
+    { "label": "Refrain", "texte": "…" }
+
+  \]
+
+}
+
+- `media` \= `https://storybeat.b-cdn.net/` \+ le nom de fichier saisi.  
+- `cover` \= soit une LETTRE (initiale du prénom), soit une URL de photo (`https://storybeat.b-cdn.net/` \+ nom du fichier photo).  
+- `type` \= `"audio"` ou `"video"`.
+
+## Fichier à créer : `outil/index.html`
+
+À créer VERBATIM. Si des backslashes d'échappement markdown parasites apparaissent (`\#`, `\<`, `\&`, `\_`, etc.), les RETIRER — le vrai code n'en contient pas.
+
+\<\!DOCTYPE html\>
+
+\<html lang="fr"\>
+
+\<head\>
+
+\<meta charset="UTF-8"\>
+
+\<meta name="viewport" content="width=device-width, initial-scale=1.0"\>
+
+\<title\>StoryBeat — Générateur de fiche\</title\>
+
+\<style\>
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800\&family=Manrope:wght@400;500;600;700\&display=swap');
+
+:root{--bg:\#0b0a10;--card:\#1c1926;--card2:\#26212f;--pink:\#ff3aa8;--violet:\#9b4dff;--cyan:\#1fd6ff;--white:\#fff;--muted:rgba(255,255,255,.62);--line:rgba(255,255,255,.14);--grad3:linear-gradient(90deg,\#ff3aa8,\#9b4dff,\#1fd6ff);--display:'Sora',sans-serif;--body:'Manrope',sans-serif;}
+
+\*{margin:0;padding:0;box-sizing:border-box}
+
+body{background:var(--bg);color:var(--white);font-family:var(--body);padding:30px 18px 70px;min-height:100vh}
+
+.wrap{max-width:640px;margin:0 auto}
+
+h1{font-family:var(--display);font-weight:800;font-size:26px;margin-bottom:4px}
+
+.sub{color:var(--muted);font-size:14px;margin-bottom:26px}
+
+.grp{margin-bottom:18px}
+
+label.q{display:block;font-weight:600;font-size:14px;margin-bottom:7px}
+
+label.q .hint{color:var(--muted);font-weight:400;font-size:12px}
+
+input,textarea,select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--white);font-family:var(--body);font-size:15px;padding:12px 14px}
+
+textarea{min-height:70px;resize:vertical}
+
+.row2{display:flex;gap:12px;flex-wrap:wrap}
+
+.row2\>div{flex:1 1 220px}
+
+.radio{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+.radio label{flex:1 1 140px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:8px}
+
+.radio input{width:auto}
+
+.parole{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+
+.parole .ptop{display:flex;gap:10px;margin-bottom:8px}
+
+.parole .ptop input{flex:1}
+
+.btn{border:none;cursor:pointer;font-family:var(--display);font-weight:700;border-radius:12px;padding:13px 20px;font-size:15px}
+
+.btn.grad{background:var(--grad3);color:\#fff;box-shadow:0 12px 30px \-10px rgba(155,77,255,.6)}
+
+.btn.ghost{background:var(--card2);color:\#fff;border:1px solid var(--line);font-family:var(--body);font-weight:600;font-size:14px}
+
+.btn.small{padding:8px 12px;font-size:13px}
+
+.gen{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+.out{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:none}
+
+.out.show{display:block}
+
+.out h3{font-family:var(--display);font-size:16px;margin-bottom:12px}
+
+.out .line{font-size:14px;margin-bottom:10px;color:rgba(255,255,255,.9)}
+
+.out .line b{color:\#fff}
+
+.out code{background:\#000;border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:13px;word-break:break-all}
+
+.warn{color:\#ffb43a;font-size:13px;margin-top:8px}
+
+.err{color:\#ff6b8a;font-size:13px;margin-top:6px;display:none}
+
+.err.show{display:block}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line);padding:12px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.3s}
+
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+\</style\>
+
+\</head\>
+
+\<body\>
+
+\<div class="wrap"\>
+
+  \<h1\>🎵 Générateur de fiche\</h1\>
+
+  \<div class="sub"\>Remplis, télécharge la fiche, puis dépose-la dans le dossier \<b\>chansons/\</b\> sur GitHub. Les fichiers MP3/MP4/photo doivent d'abord être sur Bunny.\</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Prénom du destinataire\</label\>
+
+    \<input id="prenom" placeholder="Ex : Sarah"\>
+
+  \</div\>
+
+  \<div class="row2"\>
+
+    \<div class="grp"\>
+
+      \<label class="q"\>Identifiant du lien \<span class="hint"\>(sert au nom du fichier \+ à l'adresse)\</span\>\</label\>
+
+      \<input id="id" placeholder="ex : sarah"\>
+
+    \</div\>
+
+    \<div class="grp"\>
+
+      \<label class="q"\>Titre de la chanson\</label\>
+
+      \<input id="titre" placeholder="Ex : Toi, c'est toi"\>
+
+    \</div\>
+
+  \</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Petit texte sous le titre\</label\>
+
+    \<input id="pour" placeholder="Ex : Pour Sarah, avec tout mon cœur ❤️"\>
+
+  \</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Type de fichier\</label\>
+
+    \<div class="radio"\>
+
+      \<label\>\<input type="radio" name="type" value="audio" checked\> 🎧 Audio (MP3)\</label\>
+
+      \<label\>\<input type="radio" name="type" value="video"\> 🎬 Vidéo (MP4)\</label\>
+
+    \</div\>
+
+  \</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Nom du fichier sur Bunny \<span class="hint"\>(ex : sarah.mp3 ou sarah.mp4)\</span\>\</label\>
+
+    \<input id="media" placeholder="sarah.mp3"\>
+
+  \</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Pochette\</label\>
+
+    \<div class="radio"\>
+
+      \<label\>\<input type="radio" name="cover" value="initiale" checked\> 🔤 Initiale automatique\</label\>
+
+      \<label\>\<input type="radio" name="cover" value="photo"\> 🖼️ Photo\</label\>
+
+    \</div\>
+
+    \<input id="photo" placeholder="Nom du fichier photo sur Bunny (ex : sarah.jpg)" style="margin-top:10px;display:none"\>
+
+  \</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Paroles\</label\>
+
+    \<div id="paroles"\>\</div\>
+
+    \<button class="btn ghost small" type="button" onclick="addParole()"\>＋ Ajouter un bloc\</button\>
+
+  \</div\>
+
+  \<div class="err" id="err"\>\</div\>
+
+  \<div class="gen"\>
+
+    \<button class="btn grad" type="button" onclick="generer()"\>⬇ Générer et télécharger la fiche\</button\>
+
+  \</div\>
+
+  \<div class="out" id="out"\>
+
+    \<h3\>✅ Fiche prête \!\</h3\>
+
+    \<div class="line"\>Fichier téléchargé : \<code id="o-file"\>\</code\>\</div\>
+
+    \<div class="line"\>➡ Dépose ce fichier dans le dossier \<b\>chansons/\</b\> de ton dépôt \<b\>storybeat-ecoute\</b\> sur GitHub.\</div\>
+
+    \<div class="line"\>Lien à envoyer à ta cliente : \<code id="o-link"\>\</code\> \<button class="btn ghost small" type="button" onclick="copyLink()"\>Copier\</button\>\</div\>
+
+    \<div class="warn" id="o-warn"\>\</div\>
+
+  \</div\>
+
+\</div\>
+
+\<div class="toast" id="toast"\>\</div\>
+
+\<script\>
+
+const BUNNY='https://storybeat.b-cdn.net/';
+
+const SITE='https://ecoute.storybeat.fr/';
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=\>t.classList.remove('show'),1800);}
+
+function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/\[\\u0300-\\u036f\]/g,'').replace(/\[^a-z0-9\]+/g,'-').replace(/^-+|-+$/g,'');}
+
+const prenom=document.getElementById('prenom');
+
+const idF=document.getElementById('id');
+
+prenom.addEventListener('input',()=\>{ if(\!idF.dataset.edited){ idF.value=slug(prenom.value); } });
+
+idF.addEventListener('input',()=\>{ idF.dataset.edited='1'; });
+
+document.querySelectorAll('input\[name="cover"\]').forEach(r=\>r.addEventListener('change',()=\>{
+
+  document.getElementById('photo').style.display=(document.querySelector('input\[name="cover"\]:checked').value==='photo')?'block':'none';
+
+}));
+
+function addParole(label,texte){
+
+  const wrap=document.getElementById('paroles');
+
+  const div=document.createElement('div');div.className='parole';
+
+  div.innerHTML='\<div class="ptop"\>\<input class="p-label" placeholder="Ex : Couplet 1" value="'+(label||'')+'"\>\<button class="btn ghost small" type="button"\>✕\</button\>\</div\>\<textarea class="p-texte" placeholder="Les paroles… (Entrée pour un retour à la ligne)"\>'+(texte||'')+'\</textarea\>';
+
+  div.querySelector('button').onclick=()=\>div.remove();
+
+  wrap.appendChild(div);
+
+}
+
+addParole('Couplet 1','');addParole('Refrain','');
+
+function generer(){
+
+  const err=document.getElementById('err');err.classList.remove('show');
+
+  const id=slug(idF.value||prenom.value);
+
+  const titre=document.getElementById('titre').value.trim();
+
+  const media=document.getElementById('media').value.trim();
+
+  const type=document.querySelector('input\[name="type"\]:checked').value;
+
+  if(\!id){return fail('Il manque le prénom / l\\\\'identifiant.');}
+
+  if(\!titre){return fail('Il manque le titre.');}
+
+  if(\!media){return fail('Il manque le nom du fichier Bunny (ex : sarah.mp3).');}
+
+  let cover;
+
+  if(document.querySelector('input\[name="cover"\]:checked').value==='photo'){
+
+    const ph=document.getElementById('photo').value.trim();
+
+    if(\!ph){return fail('Tu as choisi une photo mais le nom du fichier photo est vide.');}
+
+    cover=BUNNY+ph;
+
+  }else{
+
+    cover=(prenom.value.trim()\[0\]||'♪').toUpperCase();
+
+  }
+
+  const paroles=\[\];
+
+  document.querySelectorAll('\#paroles .parole').forEach(p=\>{
+
+    const l=p.querySelector('.p-label').value.trim();
+
+    const t=p.querySelector('.p-texte').value;
+
+    if(l||t.trim()) paroles.push({label:l,texte:t});
+
+  });
+
+  const fiche={prenom:prenom.value.trim(),titre:titre,pour:document.getElementById('pour').value.trim(),type:type,media:BUNNY+media,cover:cover,paroles:paroles};
+
+  const blob=new Blob(\[JSON.stringify(fiche,null,2)\],{type:'application/json'});
+
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=id+'.json';a.click();
+
+  document.getElementById('o-file').textContent=id+'.json';
+
+  document.getElementById('o-link').textContent=SITE+'?id='+id;
+
+  document.getElementById('o-warn').textContent='⚠️ Vérifie que "'+media+'"'+(document.querySelector('input\[name="cover"\]:checked').value==='photo'?' et la photo':'')+' sont bien déjà sur Bunny.';
+
+  document.getElementById('out').classList.add('show');
+
+  window.\_link=SITE+'?id='+id;
+
+}
+
+function fail(m){const err=document.getElementById('err');err.textContent=m;err.classList.add('show');err.scrollIntoView({behavior:'smooth'});}
+
+function copyLink(){if(navigator.clipboard&\&window.\_link){navigator.clipboard.writeText(window.\_link).then(()=\>toast('Lien copié \! ✨'));}}
+
+\</script\>
+
+\</body\>
+
+\</html\>
+
+## Tests
+
+1. Ouvrir `ecoute.storybeat.fr/outil/` → le formulaire s'affiche (design sombre).  
+2. Taper « Sarah » en prénom → l'identifiant se remplit tout seul en « sarah ».  
+3. Choisir « Photo » → un champ pour le nom de la photo apparaît.  
+4. Ajouter/retirer des blocs de paroles fonctionne.  
+5. Cliquer « Générer » avec un champ obligatoire vide → message d'erreur clair (pas de téléchargement).  
+6. Remplir correctement → un fichier `sarah.json` se télécharge, au bon format (mêmes clés que nora.json), et le récap affiche le nom du fichier \+ le lien final.  
+7. Une fiche `type:"video"` met bien `"type":"video"` et l'URL `.mp4`.
+
+Puis commit et push sur main (dépôt storybeat-ecoute).  
