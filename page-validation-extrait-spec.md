@@ -1,0 +1,242 @@
+# StoryBeat — Page d'extrait à valider (avec choix de version \+ email \+ redirection)
+
+**Dépôt : `storybeat-ecoute` (branche main).** Publié sur `ecoute.storybeat.fr`.
+
+## But
+
+Une page où la cliente écoute son/ses extrait(s), puis clique pour valider.
+
+- 1 extrait (Essentielle) OU 2 extraits (Populaire/Premium : Version A / Version B).  
+- Au clic : (1) un email de validation part vers [contact@storybeat.fr](mailto:contact@storybeat.fr) via EmailJS, (2) les boutons se désactivent (anti double-clic), (3) la cliente est redirigée vers la page finale de la version choisie.  
+- PAS de paroles, PAS de bouton « demander une modification ».
+
+## Structure
+
+- Page : `valider/index.html` → URL `ecoute.storybeat.fr/valider/?id=hanifa`  
+- Fiches d'extrait : dossier `extraits/` → `extraits/hanifa.json`
+
+## Format de la fiche d'extrait (`extraits/hanifa.json`)
+
+1 entrée dans "versions" \= Essentielle ; 2 entrées \= Populaire/Premium.
+
+{
+
+  "prenom": "Hanifa",
+
+  "versions": \[
+
+    { "label": "Version A", "media": "https://storybeat.b-cdn.net/hanifa.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa" },
+
+    { "label": "Version B", "media": "https://storybeat.b-cdn.net/hanifa.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa" }
+
+  \]
+
+}
+
+- `media` \= lien Bunny de l'EXTRAIT (ex. `hanifa-a-extrait.mp3`).  
+- `final` \= lien de la page finale vers laquelle rediriger si cette version est choisie.  
+- (Dans l'exemple ci-dessus, les deux pointent vers la chanson existante `?id=hanifa` pour que le test fonctionne ; Anita mettra les vrais extraits \+ vraies pages finales.)
+
+## Fichier à créer : `valider/index.html` (VERBATIM — retirer tout backslash d'échappement markdown parasite)
+
+\<\!DOCTYPE html\>
+
+\<html lang="fr"\>
+
+\<head\>
+
+\<meta charset="UTF-8"\>
+
+\<meta name="viewport" content="width=device-width, initial-scale=1.0"\>
+
+\<title\>StoryBeat — Valide ton extrait\</title\>
+
+\<style\>
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800\&family=Manrope:wght@400;500;600;700\&display=swap');
+
+:root{--bg:\#0b0a10;--card:\#1c1926;--card2:\#26212f;--pink:\#ff3aa8;--violet:\#9b4dff;--cyan:\#1fd6ff;--white:\#fff;--muted:rgba(255,255,255,.62);--line:rgba(255,255,255,.14);--grad3:linear-gradient(90deg,\#ff3aa8,\#9b4dff,\#1fd6ff);--display:'Sora',sans-serif;--body:'Manrope',sans-serif;}
+
+\*{margin:0;padding:0;box-sizing:border-box}
+
+body{background:var(--bg);color:var(--white);font-family:var(--body);min-height:100vh;padding:34px 20px 60px;background:radial-gradient(60% 40% at 50% 0%,rgba(155,77,255,.22),transparent 70%),var(--bg)}
+
+.wrap{max-width:520px;margin:0 auto}
+
+.logo{font-family:var(--display);font-weight:800;font-style:italic;font-size:20px;text-align:center;margin-bottom:26px}
+
+.logo .b{background:var(--grad3);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+.eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:8px}
+
+h1{font-family:var(--display);font-weight:800;font-size:25px;text-align:center;line-height:1.2;margin-bottom:10px}
+
+.intro{color:var(--muted);text-align:center;font-size:15px;margin-bottom:30px}
+
+.vcard{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:22px 20px;margin-bottom:18px}
+
+.vcard.two{background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad3) border-box;border:1.5px solid transparent}
+
+.vlabel{font-family:var(--display);font-weight:700;font-size:18px;margin-bottom:14px;text-align:center}
+
+audio{width:100%;margin-bottom:16px}
+
+.btn-val{width:100%;border:none;cursor:pointer;font-family:var(--display);font-weight:700;font-size:16px;color:\#fff;border-radius:14px;padding:15px;background:var(--grad3);box-shadow:0 12px 30px \-10px rgba(155,77,255,.6);transition:transform .12s,opacity .2s}
+
+.btn-val:hover{transform:translateY(-1px)}
+
+.btn-val:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+.done{display:none;text-align:center;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:24px;margin-top:6px}
+
+.done.show{display:block}
+
+.done h2{font-family:var(--display);font-size:20px;margin-bottom:8px}
+
+.done p{color:var(--muted);font-size:15px}
+
+.state{text-align:center;padding:60px 20px;color:var(--muted)}
+
+.state h1{font-family:var(--display);color:var(--white);font-size:22px;margin-bottom:10px}
+
+.mini{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
+
+\</style\>
+
+\<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser/dist/email.min.js"\>\</script\>
+
+\</head\>
+
+\<body\>
+
+\<div class="wrap" id="app"\>\<div class="state"\>\<h1\>Chargement…\</h1\>\<p\>On prépare ton extrait 🎵\</p\>\</div\>\</div\>
+
+\<script\>
+
+const PUBLIC\_KEY='u6MuSGT1tR3q8I1pb';
+
+const SERVICE\_ID='service\_ehijilk';
+
+const TEMPLATE\_ID='0zztfni';
+
+if(window.emailjs) emailjs.init({publicKey:PUBLIC\_KEY});
+
+const app=document.getElementById('app');
+
+const id=new URLSearchParams(location.search).get('id');
+
+function esc(t){return (t||'').replace(/&/g,'\&amp;').replace(/\</g,'\&lt;').replace(/\>/g,'\&gt;');}
+
+function showError(m){app.innerHTML='\<div class="state"\>\<h1\>Oups…\</h1\>\<p\>'+m+'\</p\>\</div\>';}
+
+if(\!id){ showError("Aucun extrait n'est indiqué dans le lien."); }
+
+else{
+
+  fetch('../extraits/'+encodeURIComponent(id)+'.json')
+
+    .then(r=\>{if(\!r.ok)throw 0;return r.json();})
+
+    .then(render)
+
+    .catch(()=\>showError("On ne trouve pas cet extrait. Vérifie le lien."));
+
+}
+
+function render(d){
+
+  const two=(d.versions||\[\]).length\>1;
+
+  const cards=(d.versions||\[\]).map((v,idx)=\>{
+
+    const btnLabel \= two ? ('🎧 Je choisis la '+esc(v.label)) : '✅ Je valide et je reçois ma chanson';
+
+    return \`\<div class="vcard ${two?'two':''}"\>
+
+      ${two?\`\<div class="vlabel"\>${esc(v.label)}\</div\>\`:''}
+
+      \<audio controls preload="metadata" src="${v.media}"\>\</audio\>
+
+      \<button class="btn-val" data-idx="${idx}"\>${btnLabel}\</button\>
+
+    \</div\>\`;
+
+  }).join('');
+
+  app.innerHTML=\`
+
+    \<div class="logo"\>STORY\<span class="b"\>BEAT\</span\>\</div\>
+
+    \<div class="eyebrow"\>Ton extrait à valider\</div\>
+
+    \<h1\>${two?'Choisis ta version préférée':'Voici ton extrait, '+esc(d.prenom)+' 🎵'}\</h1\>
+
+    \<div class="intro"\>${two?'Écoute les deux versions et choisis celle que tu préfères. Ton choix est définitif : tu reçois aussitôt ta chanson complète.':'Écoute ton extrait. Il te plaît ? Valide, et tu reçois ta chanson complète tout de suite.'}\</div\>
+
+    ${cards}
+
+    \<div class="mini"\>Une question ? Écris-nous à contact@storybeat.fr\</div\>
+
+    \<div class="done" id="done"\>\<h2\>✅ Merci ${esc(d.prenom)} \!\</h2\>\<p\>On te redirige vers ta chanson…\</p\>\</div\>\`;
+
+  app.querySelectorAll('.btn-val').forEach(b=\>{
+
+    b.onclick=()=\>{
+
+      const v=d.versions\[+b.dataset.idx\];
+
+      app.querySelectorAll('.btn-val').forEach(x=\>x.disabled=true);
+
+      const params={prenom:d.prenom, version:v.label||'Version unique'};
+
+      const go=()=\>{ location.href=v.final; };
+
+      document.getElementById('done').classList.add('show');
+
+      document.getElementById('done').scrollIntoView({behavior:'smooth'});
+
+      if(window.emailjs){
+
+        emailjs.send(SERVICE\_ID,TEMPLATE\_ID,params).then(()=\>setTimeout(go,1200)).catch(()=\>setTimeout(go,1200));
+
+      } else { setTimeout(go,1200); }
+
+    };
+
+  });
+
+}
+
+\</script\>
+
+\</body\>
+
+\</html\>
+
+## Fichier d'exemple à créer : `extraits/hanifa.json`
+
+(2 versions pointant vers la chanson existante `?id=hanifa`, pour que le test marche)
+
+{
+
+  "prenom": "Hanifa",
+
+  "versions": \[
+
+    { "label": "Version A", "media": "https://storybeat.b-cdn.net/hanifa.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa" },
+
+    { "label": "Version B", "media": "https://storybeat.b-cdn.net/hanifa.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa" }
+
+  \]
+
+}
+
+## Tests
+
+1. `ecoute.storybeat.fr/valider/?id=hanifa` → affiche 2 cartes « Version A / Version B », chacune avec un lecteur audio et un bouton de choix.  
+2. Une fiche à 1 seule version → 1 carte \+ bouton « ✅ Je valide et je reçois ma chanson ».  
+3. Cliquer un bouton → les boutons se désactivent, un message « Merci » apparaît, puis redirection vers le lien `final` de la version choisie (au bout de \~1,2 s).  
+4. L'email de validation part bien (vérifiable : réception à [contact@storybeat.fr](mailto:contact@storybeat.fr) avec prénom \+ version). NB : dépend de l'environnement réel (EmailJS), à confirmer en ligne.  
+5. `?id=inconnu` ou sans id → message d'erreur propre.
+
+Puis commit et push sur main (dépôt storybeat-ecoute).  
