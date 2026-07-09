@@ -1,0 +1,7 @@
+{
+  "prenom": "Hanifa",
+  "versions": [
+    { "label": "Version A", "media": "https://storybeat.b-cdn.net/hanifa.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa" },
+    { "label": "Version B", "media": "https://storybeat.b-cdn.net/hanifa.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa" }
+  ]
+}
