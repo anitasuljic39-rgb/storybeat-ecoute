@@ -1,0 +1,15 @@
+{
+  "prenom": "mes copains",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/mescopains-a-extrait",
+      "final": "https://ecoute.storybeat.fr/?id=mescopains-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/mescopains-b-extrait",
+      "final": "https://ecoute.storybeat.fr/?id=mescopains-b"
+    }
+  ]
+}
