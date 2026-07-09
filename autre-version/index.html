@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoryBeat — Ta deuxième version</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+:root{--bg:#0b0a10;--card:#1c1926;--card2:#26212f;--pink:#ff3aa8;--violet:#9b4dff;--cyan:#1fd6ff;--white:#fff;--muted:rgba(255,255,255,.62);--line:rgba(255,255,255,.14);--grad3:linear-gradient(90deg,#ff3aa8,#9b4dff,#1fd6ff);--display:'Sora',sans-serif;--body:'Manrope',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--white);font-family:var(--body);min-height:100vh;padding:34px 20px 60px;line-height:1.5;background:radial-gradient(60% 40% at 50% 0%,rgba(155,77,255,.22),transparent 70%),var(--bg)}
+.wrap{max-width:520px;margin:0 auto}
+.logo{font-family:var(--display);font-weight:800;font-style:italic;font-size:20px;text-align:center;margin-bottom:34px}
+.logo .b{background:var(--grad3);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:var(--card);background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad3) border-box;border:1.5px solid transparent;border-radius:24px;padding:38px 28px;text-align:center;box-shadow:0 30px 80px -30px rgba(155,77,255,.55)}
+.big{font-size:46px;line-height:1;margin-bottom:18px}
+h1{font-family:var(--display);font-weight:800;font-size:23px;line-height:1.2;margin-bottom:12px}
+.intro{color:var(--muted);font-size:15px;margin-bottom:24px}
+.spinner{width:34px;height:34px;margin:6px auto 0;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--violet);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.manual{display:inline-block;margin-top:22px;color:var(--muted);font-size:13px;text-decoration:underline}
+.manual:hover{color:var(--white)}
+.cta{display:inline-block;background:var(--grad3);color:#fff;text-decoration:none;font-family:var(--display);font-weight:700;font-size:15px;padding:13px 26px;border-radius:14px;margin-top:20px;box-shadow:0 12px 30px -10px rgba(155,77,255,.6)}
+.state{text-align:center;padding:20px}
+.state .big{margin-bottom:16px}
+.mini{color:var(--muted);font-size:13px;text-align:center;margin-top:20px}
+.mini a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">STORY<span class="b">BEAT</span></div>
+  <div id="app"></div>
+</div>
+<script>
+const SITE='https://ecoute.storybeat.fr/';
+const app=document.getElementById('app');
+const id=new URLSearchParams(location.search).get('id');
+
+// Inverse le dernier suffixe -a/-b (et rien d'autre dans l'id)
+function invert(rawId){
+  if(!rawId) return null;
+  if(/-a$/i.test(rawId)) return rawId.replace(/-a$/i,'-b');
+  if(/-b$/i.test(rawId)) return rawId.replace(/-b$/i,'-a');
+  return null;
+}
+
+function showError(){
+  app.innerHTML=`
+    <div class="card">
+      <div class="big">💜</div>
+      <h1>On a besoin d'un petit coup de main</h1>
+      <div class="intro">Ton lien ne nous permet pas d'identifier ta deuxième version.
+      Pas d'inquiétude&nbsp;: écris-nous et on te l'envoie tout de suite&nbsp;!</div>
+      <a class="cta" href="mailto:contact@storybeat.fr?subject=Ma%20deuxi%C3%A8me%20version">✉️ Contacter StoryBeat</a>
+    </div>
+    <div class="mini">Écris-nous à <a href="mailto:contact@storybeat.fr">contact@storybeat.fr</a></div>`;
+}
+
+const other=invert(id);
+if(!other){
+  showError();
+}else{
+  const target=SITE+'?id='+encodeURIComponent(other);
+  app.innerHTML=`
+    <div class="card">
+      <div class="big">✅</div>
+      <h1>Merci pour ton achat&nbsp;!</h1>
+      <div class="intro">On prépare ta deuxième version… tu vas être redirigée dans un instant 🎵</div>
+      <div class="spinner"></div>
+      <div><a class="manual" href="${target}">Ça ne bouge pas ? Clique ici pour l'écouter</a></div>
+    </div>`;
+  setTimeout(()=>{ location.href=target; },2000);
+}
+</script>
+</body>
+</html>

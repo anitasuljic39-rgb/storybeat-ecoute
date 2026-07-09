@@ -37,6 +37,12 @@ body{background:var(--bg);color:var(--white);font-family:var(--body);line-height
 .play{width:74px;height:74px;border-radius:50%;border:none;cursor:pointer;margin:0 auto;background:var(--grad3);color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 34px -8px rgba(255,58,168,.6);transition:transform .15s}
 .play:hover{transform:scale(1.06)}
 video{width:100%;border-radius:18px;margin-top:8px;background:#000}
+.dl-wrap{margin-top:24px}
+.dl-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--card-hi);color:var(--white);border-radius:14px;padding:13px 24px;font-family:var(--body);font-weight:600;font-size:15px;cursor:pointer;transition:border-color .2s,transform .1s}
+.dl-btn:hover{border-color:var(--cyan);transform:translateY(-1px)}
+.dl-btn:disabled{opacity:.6;cursor:default;transform:none}
+.dl-fallback{display:block;margin-top:12px;font-size:13px;color:var(--muted);text-decoration:underline}
+.dl-fallback:hover{color:var(--white)}
 .lyrics{margin-top:30px;text-align:left}
 .lyrics h2{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;text-align:center}
 .lyrics .part{margin-bottom:18px}
@@ -110,6 +116,10 @@ function render(d){
       <div class="title">${esc(d.titre)}</div>
       <div class="for">${esc(d.pour||'')}</div>
       ${media}
+      <div class="dl-wrap">
+        <button class="dl-btn" id="dlbtn">⬇️ Télécharger ma chanson</button>
+        <a class="dl-fallback" id="dlfallback" href="${d.media}" target="_blank" rel="noopener" style="display:none">Ouvrir le fichier ↗</a>
+      </div>
     </div>
     ${lyrics?`<div class="lyrics"><h2>Les paroles</h2>${lyrics}</div>`:''}
     <div class="share">
@@ -126,6 +136,40 @@ function render(d){
       <a class="cta" href="https://www.storybeat.fr">🎵 Crée la tienne</a>
     </div>`;
   if(!isVideo) setupAudio();
+  setupDownload(d);
+}
+function fileExt(url){
+  try{ const m=new URL(url,location.href).pathname.match(/\.([a-z0-9]{2,4})$/i); return m?m[1].toLowerCase():'mp3'; }
+  catch(e){ return 'mp3'; }
+}
+function setupDownload(d){
+  const btn=document.getElementById('dlbtn');
+  const fb=document.getElementById('dlfallback');
+  if(!btn||!d.media){ if(btn) btn.style.display='none'; return; }
+  const filename='StoryBeat - ma chanson.'+fileExt(d.media);
+  btn.onclick=async()=>{
+    const orig=btn.textContent;
+    btn.disabled=true; btn.textContent='⏳ Téléchargement…';
+    try{
+      // Le fichier est sur Bunny (b-cdn.net) : on le récupère en cross-origin
+      // puis on force un vrai téléchargement via un blob local.
+      const res=await fetch(d.media,{mode:'cors'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const blob=await res.blob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),4000);
+      btn.textContent='✅ Téléchargée !';
+      setTimeout(()=>{ btn.textContent=orig; btn.disabled=false; },2500);
+    }catch(e){
+      // Secours si le téléchargement direct échoue (CORS, réseau…)
+      btn.textContent=orig; btn.disabled=false;
+      if(fb) fb.style.display='block';
+      toast('Téléchargement direct indisponible — utilise « Ouvrir le fichier ».');
+    }
+  };
 }
 function setupAudio(){
   const audio=document.getElementById('audio');
