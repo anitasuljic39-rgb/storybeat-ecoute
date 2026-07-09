@@ -161,6 +161,7 @@ function invertId(rawId){
 function setupUpsell(){
   const btn=document.getElementById('upsellbtn');
   if(!btn) return;
+  if(params.get('acquis')==='1') return; // l'autre version vient d'être achetée : pas d'upsell
   const other=invertId(id);
   if(!other) return; // id sans suffixe -a/-b : formule à une seule version, pas d'upsell
   // On ne propose l'autre version que si elle existe vraiment.
