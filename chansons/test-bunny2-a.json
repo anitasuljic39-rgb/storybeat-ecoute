@@ -1,0 +1,14 @@
+{
+  "prenom": "bunny2",
+  "titre": "bunny2A",
+  "pour": "BHGKF",
+  "type": "audio",
+  "media": "https://storybeat.b-cdn.net/test-bunny2/test-bunny2-a.mp3",
+  "cover": "B",
+  "paroles": [
+    {
+      "label": "",
+      "texte": "FFUYFU"
+    }
+  ]
+}
