@@ -1,0 +1,15 @@
+{
+  "prenom": "test",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/test1/test1-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=test1-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/test1/test1-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=test1-b"
+    }
+  ]
+}
