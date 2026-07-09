@@ -43,10 +43,12 @@ video{width:100%;border-radius:18px;margin-top:8px;background:#000}
 .dl-btn:disabled{opacity:.6;cursor:default;transform:none}
 .dl-fallback{display:block;margin-top:12px;font-size:13px;color:var(--muted);text-decoration:underline}
 .dl-fallback:hover{color:var(--white)}
-.upsell-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;margin-top:18px;border:none;background:var(--grad3);color:#fff;border-radius:16px;padding:17px 30px;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:.2px;cursor:pointer;box-shadow:0 14px 40px -10px rgba(255,58,168,.55);animation:upsellPulse 2.2s ease-in-out infinite;transition:transform .18s ease}
-.upsell-btn:hover{transform:scale(1.045)}
-@keyframes upsellPulse{0%,100%{box-shadow:0 12px 34px -12px rgba(255,58,168,.45)}50%{box-shadow:0 18px 52px -8px rgba(155,77,255,.85)}}
-@media (prefers-reduced-motion:reduce){.upsell-btn{animation:none;box-shadow:0 14px 44px -8px rgba(155,77,255,.7)}}
+.upsell-btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:9px;margin-top:18px;border:none;background:var(--grad3);color:#fff;border-radius:16px;padding:17px 30px;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:.2px;cursor:pointer;box-shadow:0 14px 40px -10px rgba(255,58,168,.55);animation:upsellPulse 2s ease-in-out infinite;transition:transform .18s ease}
+.upsell-btn::before{content:"";position:absolute;z-index:-1;top:-50%;left:0;width:55%;height:200%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg) translateX(-250%);animation:upsellSweep 2.3s ease-in-out infinite;pointer-events:none}
+.upsell-btn:hover{transform:scale(1.04);box-shadow:0 20px 56px -6px rgba(255,58,168,.85)}
+@keyframes upsellPulse{0%,100%{box-shadow:0 12px 34px -12px rgba(255,58,168,.5)}50%{box-shadow:0 20px 54px -6px rgba(155,77,255,.9)}}
+@keyframes upsellSweep{0%{transform:skewX(-20deg) translateX(-250%)}45%,100%{transform:skewX(-20deg) translateX(420%)}}
+@media (prefers-reduced-motion:reduce){.upsell-btn{animation:none;box-shadow:0 14px 44px -8px rgba(155,77,255,.7)}.upsell-btn::before{animation:none;display:none}}
 .lyrics{margin-top:30px;text-align:left}
 .lyrics h2{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;text-align:center}
 .lyrics .part{margin-bottom:18px}
