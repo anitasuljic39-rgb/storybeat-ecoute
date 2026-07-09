@@ -67,7 +67,9 @@ if(!other){
 }else{
   // On efface la clé pour ne pas la réutiliser par erreur lors d'une visite ultérieure.
   try{ localStorage.removeItem(UPSELL_KEY); }catch(e){}
-  const target=SITE+'?id='+encodeURIComponent(other);
+  // acquis=1 signale que cette version vient d'être achetée : la page d'écoute
+  // masquera alors le bouton d'upsell (la cliente possède désormais les deux versions).
+  const target=SITE+'?id='+encodeURIComponent(other)+'&acquis=1';
   app.innerHTML=`
     <div class="card">
       <div class="big">✅</div>
