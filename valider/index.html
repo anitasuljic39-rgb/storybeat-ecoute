@@ -45,7 +45,7 @@ function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 function showError(m){app.innerHTML='<div class="state"><h1>Oups…</h1><p>'+m+'</p></div>';}
 if(!id){ showError("Aucun extrait n'est indiqué dans le lien."); }
 else{
-  fetch('../extraits/'+encodeURIComponent(id)+'.json')
+  fetch('../extraits/'+encodeURIComponent(id)+'.json?t='+Date.now())
     .then(r=>{if(!r.ok)throw 0;return r.json();})
     .then(render)
     .catch(()=>showError("On ne trouve pas cet extrait. Vérifie le lien."));

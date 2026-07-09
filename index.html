@@ -76,7 +76,7 @@ function showError(msg){
 }
 if(!id){ showError("Aucune chanson n'est indiquée dans le lien."); }
 else{
-  fetch('../chansons/'+encodeURIComponent(id)+'.json')
+  fetch('../chansons/'+encodeURIComponent(id)+'.json?t='+Date.now())
     .then(r=>{ if(!r.ok) throw new Error('not found'); return r.json(); })
     .then(render)
     .catch(()=>showError("On ne trouve pas cette chanson. Vérifie le lien."));
