@@ -1,0 +1,316 @@
+# StoryBeat — Outil 2 : Générateur de fiche d'EXTRAIT (page de validation A/B)
+
+**Dépôt : `storybeat-ecoute` (branche main).** Publié sur `ecoute.storybeat.fr`.
+
+## But
+
+Un 2ᵉ outil, à `ecoute.storybeat.fr/outil-extrait/`, qui génère la **fiche d'extrait** (format « versions ») pour la page de validation `valider/`. Complémentaire de l'outil existant `outil/` (qui, lui, fait les fiches FINALES).
+
+## Format EXACT à produire (lu par valider/index.html)
+
+{
+
+  "prenom": "Hanifa",
+
+  "versions": \[
+
+    { "label": "Version A", "media": "https://storybeat.b-cdn.net/hanifa-a-extrait.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa-a" },
+
+    { "label": "Version B", "media": "https://storybeat.b-cdn.net/hanifa-b-extrait.mp3", "final": "https://ecoute.storybeat.fr/?id=hanifa-b" }
+
+  \]
+
+}
+
+- 1 version \= Essentielle ; 2 versions \= Populaire/Premium.  
+- `media` \= `https://storybeat.b-cdn.net/` \+ nom du fichier extrait saisi.  
+- `final` \= `https://ecoute.storybeat.fr/?id=` \+ identifiant de la page finale saisi.
+
+## Convention de nom du fichier généré
+
+- L'utilisatrice saisit un identifiant (ex. `hanifa`).  
+- Le fichier téléchargé se nomme `{id}-choix.json` (ex. `hanifa-choix.json`).  
+- Le lien à envoyer à la cliente : `https://ecoute.storybeat.fr/valider/?id={id}-choix`.
+
+## Fichier à créer : `outil-extrait/index.html`
+
+VERBATIM. Retirer d'éventuels backslashes d'échappement markdown parasites (`\#`, `\<`, `\&`, `\_`…).
+
+\<\!DOCTYPE html\>
+
+\<html lang="fr"\>
+
+\<head\>
+
+\<meta charset="UTF-8"\>
+
+\<meta name="viewport" content="width=device-width, initial-scale=1.0"\>
+
+\<title\>StoryBeat — Générateur de fiche d'extrait\</title\>
+
+\<style\>
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800\&family=Manrope:wght@400;500;600;700\&display=swap');
+
+:root{--bg:\#0b0a10;--card:\#1c1926;--card2:\#26212f;--pink:\#ff3aa8;--violet:\#9b4dff;--cyan:\#1fd6ff;--white:\#fff;--muted:rgba(255,255,255,.62);--line:rgba(255,255,255,.14);--grad3:linear-gradient(90deg,\#ff3aa8,\#9b4dff,\#1fd6ff);--display:'Sora',sans-serif;--body:'Manrope',sans-serif;}
+
+\*{margin:0;padding:0;box-sizing:border-box}
+
+body{background:var(--bg);color:var(--white);font-family:var(--body);padding:30px 18px 70px;min-height:100vh}
+
+.wrap{max-width:640px;margin:0 auto}
+
+h1{font-family:var(--display);font-weight:800;font-size:25px;margin-bottom:4px}
+
+.sub{color:var(--muted);font-size:14px;margin-bottom:26px}
+
+.grp{margin-bottom:18px}
+
+label.q{display:block;font-weight:600;font-size:14px;margin-bottom:7px}
+
+label.q .hint{color:var(--muted);font-weight:400;font-size:12px}
+
+input,select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--white);font-family:var(--body);font-size:15px;padding:12px 14px}
+
+.radio{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+.radio label{flex:1 1 200px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:8px}
+
+.radio input{width:auto}
+
+.vbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+
+.vbox h3{font-family:var(--display);font-size:15px;margin-bottom:12px;color:var(--pink)}
+
+.vbox .grp:last-child{margin-bottom:0}
+
+.btn{border:none;cursor:pointer;font-family:var(--display);font-weight:700;border-radius:12px;padding:13px 20px;font-size:15px}
+
+.btn.grad{background:var(--grad3);color:\#fff;box-shadow:0 12px 30px \-10px rgba(155,77,255,.6)}
+
+.btn.ghost{background:var(--card2);color:\#fff;border:1px solid var(--line);font-family:var(--body);font-weight:600;font-size:13px;padding:8px 12px}
+
+.gen{margin-top:22px}
+
+.out{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:none}
+
+.out.show{display:block}
+
+.out h3{font-family:var(--display);font-size:16px;margin-bottom:12px}
+
+.out .line{font-size:14px;margin-bottom:10px;color:rgba(255,255,255,.9)}
+
+.out code{background:\#000;border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:13px;word-break:break-all}
+
+.warn{color:\#ffb43a;font-size:13px;margin-top:8px}
+
+.err{color:\#ff6b8a;font-size:13px;margin-top:6px;display:none}
+
+.err.show{display:block}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line);padding:12px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.3s}
+
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+\</style\>
+
+\</head\>
+
+\<body\>
+
+\<div class="wrap"\>
+
+  \<h1\>🎧 Générateur de fiche d'extrait\</h1\>
+
+  \<div class="sub"\>Crée la page de validation (choix A/B). Les extraits MP3 doivent d'abord être sur Bunny, et les pages finales doivent déjà exister dans le dossier \<b\>chansons/\</b\>.\</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Identifiant de la cliente \<span class="hint"\>(sert au nom du fichier et au lien)\</span\>\</label\>
+
+    \<input id="id" placeholder="ex : hanifa"\>
+
+  \</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Prénom de la cliente\</label\>
+
+    \<input id="prenom" placeholder="ex : Hanifa"\>
+
+  \</div\>
+
+  \<div class="grp"\>
+
+    \<label class="q"\>Nombre de versions\</label\>
+
+    \<div class="radio"\>
+
+      \<label\>\<input type="radio" name="nb" value="1"\> 1 extrait (Essentielle)\</label\>
+
+      \<label\>\<input type="radio" name="nb" value="2" checked\> 2 extraits (Populaire / Premium)\</label\>
+
+    \</div\>
+
+  \</div\>
+
+  \<div class="vbox"\>
+
+    \<h3\>Version A\</h3\>
+
+    \<div class="grp"\>
+
+      \<label class="q"\>Fichier extrait sur Bunny \<span class="hint"\>(ex : hanifa-a-extrait.mp3)\</span\>\</label\>
+
+      \<input id="mediaA" placeholder="hanifa-a-extrait.mp3"\>
+
+    \</div\>
+
+    \<div class="grp"\>
+
+      \<label class="q"\>Identifiant de la page finale \<span class="hint"\>(ex : hanifa-a)\</span\>\</label\>
+
+      \<input id="finalA" placeholder="hanifa-a"\>
+
+    \</div\>
+
+  \</div\>
+
+  \<div class="vbox" id="boxB"\>
+
+    \<h3\>Version B\</h3\>
+
+    \<div class="grp"\>
+
+      \<label class="q"\>Fichier extrait sur Bunny \<span class="hint"\>(ex : hanifa-b-extrait.mp3)\</span\>\</label\>
+
+      \<input id="mediaB" placeholder="hanifa-b-extrait.mp3"\>
+
+    \</div\>
+
+    \<div class="grp"\>
+
+      \<label class="q"\>Identifiant de la page finale \<span class="hint"\>(ex : hanifa-b)\</span\>\</label\>
+
+      \<input id="finalB" placeholder="hanifa-b"\>
+
+    \</div\>
+
+  \</div\>
+
+  \<div class="err" id="err"\>\</div\>
+
+  \<div class="gen"\>\<button class="btn grad" type="button" onclick="generer()"\>⬇ Générer et télécharger la fiche d'extrait\</button\>\</div\>
+
+  \<div class="out" id="out"\>
+
+    \<h3\>✅ Fiche d'extrait prête \!\</h3\>
+
+    \<div class="line"\>Fichier téléchargé : \<code id="o-file"\>\</code\>\</div\>
+
+    \<div class="line"\>➡ Dépose-le dans le dossier \<b\>extraits/\</b\> de ton dépôt \<b\>storybeat-ecoute\</b\>.\</div\>
+
+    \<div class="line"\>Lien à envoyer à ta cliente : \<code id="o-link"\>\</code\> \<button class="btn ghost" type="button" onclick="copyLink()"\>Copier\</button\>\</div\>
+
+    \<div class="warn" id="o-warn"\>\</div\>
+
+  \</div\>
+
+\</div\>
+
+\<div class="toast" id="toast"\>\</div\>
+
+\<script\>
+
+const BUNNY='https://storybeat.b-cdn.net/';
+
+const SITE='https://ecoute.storybeat.fr/';
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=\>t.classList.remove('show'),1800);}
+
+function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/\[\\u0300-\\u036f\]/g,'').replace(/\[^a-z0-9\]+/g,'-').replace(/^-+|-+$/g,'');}
+
+document.querySelectorAll('input\[name="nb"\]').forEach(r=\>r.addEventListener('change',()=\>{
+
+  document.getElementById('boxB').style.display=(document.querySelector('input\[name="nb"\]:checked').value==='2')?'block':'none';
+
+}));
+
+function fail(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show');e.scrollIntoView({behavior:'smooth'});}
+
+function generer(){
+
+  document.getElementById('err').classList.remove('show');
+
+  const id=slug(document.getElementById('id').value);
+
+  const prenom=document.getElementById('prenom').value.trim();
+
+  const two=document.querySelector('input\[name="nb"\]:checked').value==='2';
+
+  const mediaA=document.getElementById('mediaA').value.trim();
+
+  const finalA=slug(document.getElementById('finalA').value);
+
+  if(\!id){return fail("Il manque l'identifiant de la cliente.");}
+
+  if(\!mediaA){return fail("Il manque le fichier extrait de la Version A.");}
+
+  if(\!finalA){return fail("Il manque l'identifiant de la page finale de la Version A.");}
+
+  const versions=\[{label: two?'Version A':'Version unique', media:BUNNY+mediaA, final:SITE+'?id='+finalA}\];
+
+  if(two){
+
+    const mediaB=document.getElementById('mediaB').value.trim();
+
+    const finalB=slug(document.getElementById('finalB').value);
+
+    if(\!mediaB){return fail("Il manque le fichier extrait de la Version B.");}
+
+    if(\!finalB){return fail("Il manque l'identifiant de la page finale de la Version B.");}
+
+    versions.push({label:'Version B', media:BUNNY+mediaB, final:SITE+'?id='+finalB});
+
+  }
+
+  const fiche={prenom:prenom, versions:versions};
+
+  const fname=id+'-choix.json';
+
+  const blob=new Blob(\[JSON.stringify(fiche,null,2)\],{type:'application/json'});
+
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
+
+  document.getElementById('o-file').textContent=fname;
+
+  const link=SITE+'valider/?id='+id+'-choix';
+
+  document.getElementById('o-link').textContent=link;
+
+  document.getElementById('o-warn').textContent='⚠️ Vérifie que les extraits sont sur Bunny ET que les pages finales ('+finalA+(two?', '+slug(document.getElementById('finalB').value):'')+') existent déjà dans chansons/.';
+
+  document.getElementById('out').classList.add('show');
+
+  window.\_link=link;
+
+}
+
+function copyLink(){if(navigator.clipboard&\&window.\_link){navigator.clipboard.writeText(window.\_link).then(()=\>toast('Lien copié \! ✨'));}}
+
+\</script\>
+
+\</body\>
+
+\</html\>
+
+## Tests
+
+1. `ecoute.storybeat.fr/outil-extrait/` s'affiche (design sombre).  
+2. Choisir « 1 extrait » masque le bloc Version B ; « 2 extraits » l'affiche.  
+3. Remplir (id=hanifa, prénom=Hanifa, Version A: hanifa-a-extrait.mp3 / hanifa-a, Version B: hanifa-b-extrait.mp3 / hanifa-b) → télécharge `hanifa-choix.json` avec le format « versions » exact (2 versions, media \= URL Bunny, final \= URL ?id=…).  
+4. Champ obligatoire vide → message d'erreur, pas de téléchargement.  
+5. Cas « 1 extrait » → une seule version, label « Version unique ».  
+6. Le récap affiche le nom du fichier \+ le lien `valider/?id=hanifa-choix`.
+
+Puis commit et push sur main (dépôt storybeat-ecoute).  
