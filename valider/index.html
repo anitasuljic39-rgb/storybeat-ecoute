@@ -29,6 +29,18 @@ audio{width:100%;margin-bottom:16px}
 .state{text-align:center;padding:60px 20px;color:var(--muted)}
 .state h1{font-family:var(--display);color:var(--white);font-size:22px;margin-bottom:10px}
 .mini{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
+.warnbox{background:rgba(255,180,58,.08);border:1px solid rgba(255,180,58,.45);color:#ffd7a0;border-radius:14px;padding:13px 16px;font-size:14px;line-height:1.5;text-align:center;margin-bottom:26px}
+.warnbox b{color:#ffb43a}
+.refund{text-align:center;margin:2px 0 24px}
+.refund-link{background:none;border:none;color:var(--muted);font-family:var(--body);font-size:13px;text-decoration:underline;cursor:pointer;padding:6px 8px}
+.refund-link:hover{color:var(--white)}
+.refund-link:disabled{opacity:.5;cursor:default;text-decoration:none}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.modal-txt{font-size:15px;line-height:1.55;margin-bottom:18px;color:var(--white)}
+.modal .btn-val{margin-bottom:10px}
+.modal-cancel{width:100%;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:var(--body);font-weight:600;font-size:14px;border-radius:12px;padding:12px;cursor:pointer;transition:color .2s}
+.modal-cancel:hover{color:var(--white)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser/dist/email.min.js"></script>
 </head>
@@ -43,6 +55,17 @@ const app=document.getElementById('app');
 const id=new URLSearchParams(location.search).get('id');
 function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function showError(m){app.innerHTML='<div class="state"><h1>Oups…</h1><p>'+m+'</p></div>';}
+function confirmDialog(opts){
+  const ov=document.createElement('div');ov.className='modal-ov';
+  ov.innerHTML='<div class="modal"><p class="modal-txt">'+opts.text+'</p>'
+    +'<button class="btn-val modal-ok">'+opts.okLabel+'</button>'
+    +'<button class="modal-cancel">'+(opts.cancelLabel||'Annuler')+'</button></div>';
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-ok').onclick=()=>{close();if(opts.onOk)opts.onOk();};
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{if(e.target===ov)close();});
+}
 if(!id){ showError("Aucun extrait n'est indiqué dans le lien."); }
 else{
   fetch('../extraits/'+encodeURIComponent(id)+'.json?t='+Date.now())
@@ -65,22 +88,53 @@ function render(d){
     <div class="eyebrow">Ton extrait à valider</div>
     <h1>${two?'Choisis ta version préférée':'Voici ton extrait, '+esc(d.prenom)+' 🎵'}</h1>
     <div class="intro">${two?'Écoute les deux versions et choisis celle que tu préfères. Ton choix est définitif : tu reçois aussitôt ta chanson complète.':'Écoute ton extrait. Il te plaît ? Valide, et tu reçois ta chanson complète tout de suite.'}</div>
+    <div class="warnbox">⚠️ <b>Ton choix est définitif.</b> Dès que tu cliques sur « Je choisis cette version », tu reçois ta chanson complète et le remboursement n'est plus possible.</div>
     ${cards}
+    <div class="refund"><button type="button" class="refund-link" id="refund-link">Aucune des deux ne me convient ? Je demande mon remboursement</button></div>
     <div class="mini">Une question ? Écris-nous à contact@storybeat.fr</div>
-    <div class="done" id="done"><h2>✅ Merci ${esc(d.prenom)} !</h2><p>On te redirige vers ta chanson…</p></div>`;
+    <div class="done" id="done"><h2>✅ Merci ${esc(d.prenom)} !</h2><p>On te redirige vers ta chanson…</p></div>
+    <div class="done" id="refundDone"><h2>✅ C'est noté</h2><p>Comme promis, tu seras remboursée — nous revenons vers toi très vite par e-mail.</p></div>`;
+  // Validation A/B : identique à avant (notification EmailJS + redirection), mais précédée d'une confirmation
+  function doValidate(v){
+    app.querySelectorAll('.btn-val').forEach(x=>x.disabled=true);
+    const rl=document.getElementById('refund-link'); if(rl) rl.disabled=true;
+    const params={prenom:d.prenom, version:v.label||'Version unique'};
+    const go=()=>{ location.href=v.final; };
+    document.getElementById('done').classList.add('show');
+    document.getElementById('done').scrollIntoView({behavior:'smooth'});
+    if(window.emailjs){
+      emailjs.send(SERVICE_ID,TEMPLATE_ID,params).then(()=>setTimeout(go,1200)).catch(()=>setTimeout(go,1200));
+    } else { setTimeout(go,1200); }
+  }
   app.querySelectorAll('.btn-val').forEach(b=>{
     b.onclick=()=>{
       const v=d.versions[+b.dataset.idx];
-      app.querySelectorAll('.btn-val').forEach(x=>x.disabled=true);
-      const params={prenom:d.prenom, version:v.label||'Version unique'};
-      const go=()=>{ location.href=v.final; };
-      document.getElementById('done').classList.add('show');
-      document.getElementById('done').scrollIntoView({behavior:'smooth'});
-      if(window.emailjs){
-        emailjs.send(SERVICE_ID,TEMPLATE_ID,params).then(()=>setTimeout(go,1200)).catch(()=>setTimeout(go,1200));
-      } else { setTimeout(go,1200); }
+      const vlabel=v.label||'Version unique';
+      confirmDialog({
+        text:'Es-tu sûre ? En confirmant, tu reçois ta chanson complète '+esc(vlabel)+' et cet achat devient définitif (plus de remboursement possible).',
+        okLabel:'Oui, je confirme mon choix',
+        onOk:()=>doValidate(v)
+      });
     };
   });
+  // Demande de remboursement (garantie sans condition) : notification EmailJS + message, PAS de redirection
+  function doRefund(){
+    app.querySelectorAll('.btn-val').forEach(x=>x.disabled=true);
+    const rl=document.getElementById('refund-link'); if(rl){rl.disabled=true;rl.style.display='none';}
+    const rparams={prenom:d.prenom, version:'DEMANDE DE REMBOURSEMENT — id: '+id, id:id};
+    const show=()=>{ const rd=document.getElementById('refundDone'); rd.classList.add('show'); rd.scrollIntoView({behavior:'smooth'}); };
+    if(window.emailjs){
+      emailjs.send(SERVICE_ID,TEMPLATE_ID,rparams).then(show).catch(show);
+    } else { show(); }
+  }
+  const refundBtn=document.getElementById('refund-link');
+  if(refundBtn) refundBtn.onclick=()=>{
+    confirmDialog({
+      text:'Es-tu sûre ? Ta chanson ne sera pas validée et nous te rembourserons.',
+      okLabel:'Oui, demander le remboursement',
+      onOk:doRefund
+    });
+  };
 }
 </script>
 </body>
