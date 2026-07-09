@@ -43,6 +43,8 @@ video{width:100%;border-radius:18px;margin-top:8px;background:#000}
 .dl-btn:disabled{opacity:.6;cursor:default;transform:none}
 .dl-fallback{display:block;margin-top:12px;font-size:13px;color:var(--muted);text-decoration:underline}
 .dl-fallback:hover{color:var(--white)}
+.upsell-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;border:1px solid transparent;background:linear-gradient(var(--card-hi),var(--card-hi)) padding-box,var(--grad3) border-box;color:var(--white);border-radius:14px;padding:13px 22px;font-family:var(--body);font-weight:700;font-size:15px;cursor:pointer;transition:transform .1s}
+.upsell-btn:hover{transform:translateY(-1px)}
 .lyrics{margin-top:30px;text-align:left}
 .lyrics h2{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;text-align:center}
 .lyrics .part{margin-bottom:18px}
@@ -119,6 +121,7 @@ function render(d){
       <div class="dl-wrap">
         <button class="dl-btn" id="dlbtn">⬇️ Télécharger ma chanson</button>
         <a class="dl-fallback" id="dlfallback" href="${d.media}" target="_blank" rel="noopener" style="display:none">Ouvrir le fichier ↗</a>
+        <div><button class="upsell-btn" id="upsellbtn" style="display:none">🎵 Obtenir aussi l'autre version — 9,90 €</button></div>
       </div>
     </div>
     ${lyrics?`<div class="lyrics"><h2>Les paroles</h2>${lyrics}</div>`:''}
@@ -137,6 +140,33 @@ function render(d){
     </div>`;
   if(!isVideo) setupAudio();
   setupDownload(d);
+  setupUpsell();
+}
+const STRIPE_LINK='https://buy.stripe.com/14AfZh7G63bi3ZB8QG7bW00';
+function invertId(rawId){
+  if(!rawId) return null;
+  if(/-a$/i.test(rawId)) return rawId.replace(/-a$/i,'-b');
+  if(/-b$/i.test(rawId)) return rawId.replace(/-b$/i,'-a');
+  return null;
+}
+function setupUpsell(){
+  const btn=document.getElementById('upsellbtn');
+  if(!btn) return;
+  const other=invertId(id);
+  if(!other) return; // id sans suffixe -a/-b : formule à une seule version, pas d'upsell
+  // On ne propose l'autre version que si elle existe vraiment.
+  fetch('../chansons/'+encodeURIComponent(other)+'.json?t='+Date.now())
+    .then(r=>{
+      if(!r.ok) return; // 404 : pas de deuxième version, on n'affiche pas le bouton
+      btn.style.display='inline-flex';
+      btn.onclick=()=>{
+        // On mémorise la version DÉJÀ possédée le temps de l'aller-retour Stripe
+        // (le lien Stripe est fixe et ne transporte pas l'id).
+        try{ localStorage.setItem('storybeat_upsell_id', id); }catch(e){}
+        location.href=STRIPE_LINK;
+      };
+    })
+    .catch(()=>{}); // réseau : on reste silencieux, pas de bouton
 }
 function fileExt(url){
   try{ const m=new URL(url,location.href).pathname.match(/\.([a-z0-9]{2,4})$/i); return m?m[1].toLowerCase():'mp3'; }
