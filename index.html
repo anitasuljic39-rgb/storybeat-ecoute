@@ -43,12 +43,15 @@ video{width:100%;border-radius:18px;margin-top:8px;background:#000}
 .dl-btn:disabled{opacity:.6;cursor:default;transform:none}
 .dl-fallback{display:block;margin-top:12px;font-size:13px;color:var(--muted);text-decoration:underline}
 .dl-fallback:hover{color:var(--white)}
-.upsell-btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:9px;margin-top:18px;border:none;background:var(--grad3);color:#fff;border-radius:16px;padding:17px 30px;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:.2px;cursor:pointer;box-shadow:0 14px 40px -10px rgba(255,58,168,.55);animation:upsellPulse 2s ease-in-out infinite;transition:transform .18s ease}
+.upsell-btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:9px;margin-top:18px;border:none;background:#ff2e88;color:#fff;text-shadow:0 0 8px rgba(255,255,255,.55);border-radius:16px;padding:17px 30px;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:.2px;cursor:pointer;box-shadow:0 14px 40px -10px rgba(255,46,136,.55);animation:upsellPulse 1.3s ease-in-out infinite;transition:transform .18s ease}
 .upsell-btn::before{content:"";position:absolute;z-index:-1;top:-50%;left:0;width:55%;height:200%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg) translateX(-250%);animation:upsellSweep 2.3s ease-in-out infinite;pointer-events:none}
-.upsell-btn:hover{transform:scale(1.04);box-shadow:0 20px 56px -6px rgba(255,58,168,.85)}
-@keyframes upsellPulse{0%,100%{box-shadow:0 12px 34px -12px rgba(255,58,168,.5)}50%{box-shadow:0 20px 54px -6px rgba(155,77,255,.9)}}
+.upsell-btn .upsell-ico{filter:drop-shadow(0 0 6px rgba(255,255,255,.5))}
+.upsell-btn .upsell-txt{text-align:center}
+.upsell-btn .upsell-em{font-size:1.14em;font-weight:800}
+.upsell-btn:hover{transform:scale(1.04);box-shadow:0 20px 56px -6px rgba(255,46,136,.9)}
+@keyframes upsellPulse{0%,100%{box-shadow:0 12px 34px -12px rgba(255,46,136,.5)}50%{box-shadow:0 20px 54px -6px rgba(255,46,136,.9)}}
 @keyframes upsellSweep{0%{transform:skewX(-20deg) translateX(-250%)}45%,100%{transform:skewX(-20deg) translateX(420%)}}
-@media (prefers-reduced-motion:reduce){.upsell-btn{animation:none;box-shadow:0 14px 44px -8px rgba(155,77,255,.7)}.upsell-btn::before{animation:none;display:none}}
+@media (prefers-reduced-motion:reduce){.upsell-btn{animation:none;box-shadow:0 14px 44px -8px rgba(255,46,136,.75)}.upsell-btn::before{animation:none;display:none}}
 .lyrics{margin-top:30px;text-align:left}
 .lyrics h2{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;text-align:center}
 .lyrics .part{margin-bottom:18px}
@@ -126,7 +129,7 @@ function render(d){
       <div class="dl-wrap">
         <button class="dl-btn" id="dlbtn">⬇️ Télécharger ma chanson</button>
         <a class="dl-fallback" id="dlfallback" href="${d.media}" target="_blank" rel="noopener" style="display:none">Ouvrir le fichier ↗</a>
-        <div><button class="upsell-btn" id="upsellbtn" style="display:none">🎵 Obtenir aussi l'autre version — 9,90 €</button></div>
+        <div><button class="upsell-btn" id="upsellbtn" style="display:none"><span class="upsell-ico">🎵</span><span class="upsell-txt">Obtenir l'autre version pour <span class="upsell-em">seulement</span> 9,90 €</span></button></div>
       </div>
     </div>
     ${lyrics?`<div class="lyrics"><h2>Les paroles</h2>${lyrics}</div>`:''}
