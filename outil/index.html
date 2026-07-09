@@ -85,9 +85,8 @@ textarea{min-height:70px;resize:vertical}
     <input id="photo" placeholder="Nom du fichier photo sur Bunny (ex : sarah.jpg)" style="margin-top:10px;display:none">
   </div>
   <div class="grp">
-    <label class="q">Paroles</label>
-    <div id="paroles"></div>
-    <button class="btn ghost small" type="button" onclick="addParole()">＋ Ajouter un bloc</button>
+    <label class="q">Paroles <span class="hint">(colle tout d'un coup depuis Suno)</span></label>
+    <textarea id="paroles-txt" style="min-height:340px" placeholder="Colle ici toutes les paroles…"></textarea>
   </div>
   <div class="err" id="err"></div>
   <div class="gen">
@@ -114,14 +113,6 @@ idF.addEventListener('input',()=>{ idF.dataset.edited='1'; });
 document.querySelectorAll('input[name="cover"]').forEach(r=>r.addEventListener('change',()=>{
   document.getElementById('photo').style.display=(document.querySelector('input[name="cover"]:checked').value==='photo')?'block':'none';
 }));
-function addParole(label,texte){
-  const wrap=document.getElementById('paroles');
-  const div=document.createElement('div');div.className='parole';
-  div.innerHTML='<div class="ptop"><input class="p-label" placeholder="Ex : Couplet 1" value="'+(label||'')+'"><button class="btn ghost small" type="button">✕</button></div><textarea class="p-texte" placeholder="Les paroles… (Entrée pour un retour à la ligne)">'+(texte||'')+'</textarea>';
-  div.querySelector('button').onclick=()=>div.remove();
-  wrap.appendChild(div);
-}
-addParole('Couplet 1','');addParole('Refrain','');
 function generer(){
   const err=document.getElementById('err');err.classList.remove('show');
   const id=slug(idF.value||prenom.value);
@@ -139,12 +130,8 @@ function generer(){
   }else{
     cover=(prenom.value.trim()[0]||'♪').toUpperCase();
   }
-  const paroles=[];
-  document.querySelectorAll('#paroles .parole').forEach(p=>{
-    const l=p.querySelector('.p-label').value.trim();
-    const t=p.querySelector('.p-texte').value;
-    if(l||t.trim()) paroles.push({label:l,texte:t});
-  });
+  const txt = document.getElementById('paroles-txt').value;
+  const paroles = txt.trim() ? [{ label:"", texte: txt }] : [];
   const fiche={prenom:prenom.value.trim(),titre:titre,pour:document.getElementById('pour').value.trim(),type:type,media:BUNNY+media,cover:cover,paroles:paroles};
   const blob=new Blob([JSON.stringify(fiche,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=id+'.json';a.click();
