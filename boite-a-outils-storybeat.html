@@ -50,6 +50,18 @@
   footer{margin-top:34px;color:var(--muted);font-size:12px;text-align:center;line-height:1.6}
   .saved{font-size:11px;color:#2e9e6b;font-weight:700;margin-left:4px;opacity:0;transition:.2s}
   .saved.on{opacity:1}
+  .fiche{background:#fff;border:1px solid #f0e6f2;border-radius:15px;margin-top:14px;box-shadow:0 10px 28px -18px rgba(90,40,90,.4);overflow:hidden}
+  .fiche summary{cursor:pointer;padding:15px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#6a3aa0;list-style:none}
+  .fiche summary::-webkit-details-marker{display:none}
+  .fiche summary::before{content:'▸  ';color:var(--fux)}
+  .fiche[open] summary::before{content:'▾  '}
+  .fiche-body{padding:2px 20px 16px;font-size:14px;line-height:1.6;color:#4a3a48}
+  .fiche-body ol{margin:8px 0 0 2px;list-style:none;counter-reset:f}
+  .fiche-body li{counter-increment:f;position:relative;padding:8px 0 8px 40px;border-bottom:1px dashed #f0e6f2}
+  .fiche-body li:last-child{border-bottom:none}
+  .fiche-body li::before{content:counter(f);position:absolute;left:0;top:7px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--fux),var(--vio));color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .fiche-body .warn{margin-top:12px;color:#c0327a;font-size:13px}
+  .fiche-body code{background:#f4ebf5;padding:1px 5px;border-radius:5px;font-size:12px}
 </style>
 </head>
 <body>
@@ -63,7 +75,23 @@
   <h2>🎨 Mes outils de création</h2>
   <div class="grid" id="grid-outils"></div>
 
-  <h2>🌐 Mes pages & mon moteur</h2>
+  <details class="fiche">
+    <summary>📋 Mode manuel — pas à pas (ex : pour un MP4)</summary>
+    <div class="fiche-body">
+      <p>À suivre uniquement quand tu ne passes <b>pas</b> par le Moteur automatique (par ex. pour un MP4).</p>
+      <ol>
+        <li><b>Prépare le(s) fichier(s)</b> : la chanson (MP3), l'extrait si besoin (coupé sur <b>MP3cut</b>), ou le fichier <b>MP4</b>.</li>
+        <li><b>Envoie-les sur Bunny</b> (ta zone de stockage « Storybeat ») et récupère l'<b>URL publique</b> de chaque fichier.</li>
+        <li><b>Ouvre le bon générateur</b> : « Générateur page d'écoute (manuel) » pour la chanson, « Générateur d'extrait (manuel) » pour un extrait. Colle l'URL du fichier + les infos demandées.</li>
+        <li>Le générateur te donne le <b>lien final</b> <code>ecoute.storybeat.fr/?id=…</code> → copie-le.</li>
+        <li><b>Ouvre l'Atelier cartes</b> → choisis le modèle → colle le message + la signature → colle le lien (le QR se crée tout seul) → ajuste → <b>télécharge</b> la carte.</li>
+        <li><b>Envoie à la cliente</b> : sa chanson (ou son lien) + sa carte. 💌</li>
+      </ol>
+      <p class="warn">✏️ Si une étape ne colle pas exactement à ta façon de faire, dis-le-moi et je corrige cette fiche pour qu'elle soit parfaite.</p>
+    </div>
+  </details>
+
+  <h2>🌐 Mes pages en ligne</h2>
   <div class="grid" id="grid-pages"></div>
 
   <h2>🔑 Mes comptes & services</h2>
@@ -74,7 +102,7 @@
     <ol>
       <li>La cliente <b>paie</b> (Systeme.io) et arrive sur sa <b>page de remerciement</b> → elle écrit son <b>message + signature</b> et <b>choisit son template</b> de carte.</li>
       <li>Toi, tu crées la <b>chanson</b> sur Suno.</li>
-      <li>Tu génères la <b>page d'écoute</b> (ton générateur) → tu obtiens le <b>lien</b> <code>ecoute.storybeat.fr/?id=…</code></li>
+      <li>Tu passes tes fichiers dans le <b>Moteur</b> (il récupère sur Bunny, renomme, prépare la page d'écoute) → tu obtiens le <b>lien</b> <code>ecoute.storybeat.fr/?id=…</code><br><em style="color:var(--muted)">(ou, en manuel — ex. pour un MP4 — via le générateur de page d'écoute)</em></li>
       <li>Tu ouvres l'<b>Atelier cartes</b> → tu choisis le template → tu colles le message + la signature → tu colles le <b>lien</b> (le QR se crée tout seul) → tu ajustes → tu <b>télécharges la carte</b>.</li>
       <li>Tu <b>envoies</b> à la cliente : sa chanson + sa carte. 💌</li>
     </ol>
@@ -97,14 +125,15 @@
 // ====== LISTE DES OUTILS / LIENS (corrigeables) ======
 const TOOLS = {
   "grid-outils":[
-    {id:"atelier", ic:"🖼️", nm:"Atelier cartes", ds:"Créer la carte-cadeau finale (modèle + message + QR + téléchargement).", url:"https://ecoute.storybeat.fr/atelier-storybeat.html", note:"à mettre en ligne (voir plus bas)"},
-    {id:"gen_ecoute", ic:"🎧", nm:"Générateur page d'écoute", ds:"Créer la page d'écoute partageable de la chanson (donne le lien + QR).", url:"https://ecoute.storybeat.fr/outil/"},
-    {id:"gen_extrait", ic:"✂️", nm:"Générateur d'extrait", ds:"Créer la page d'extrait / de validation.", url:"https://ecoute.storybeat.fr/outil-extrait/"},
+    {id:"moteur", ic:"⚙️", nm:"Moteur (tout-en-un)", ds:"⭐ À utiliser en priorité — il va chercher les fichiers sur Bunny, les renomme et prépare tout automatiquement (fini de se perdre dans les noms de fichiers).", url:"https://storybeat-moteur.vercel.app"},
+    {id:"atelier", ic:"🖼️", nm:"Atelier cartes", ds:"Créer la carte-cadeau finale (modèle + message + QR + téléchargement).", url:"https://ecoute.storybeat.fr/atelier-storybeat.html"},
+    {id:"gen_ecoute", ic:"🎧", nm:"Générateur page d'écoute (manuel)", ds:"Version manuelle, si besoin (ex : pour un MP4) — voir la fiche « Mode manuel » ci-dessous. Donne le lien + le QR.", url:"https://ecoute.storybeat.fr/outil/"},
+    {id:"gen_extrait", ic:"✂️", nm:"Générateur d'extrait (manuel)", ds:"Version manuelle de la page d'extrait / validation.", url:"https://ecoute.storybeat.fr/outil-extrait/"},
+    {id:"mp3cut", ic:"🎚️", nm:"MP3cut", ds:"Découper l'audio pour créer mes extraits (site externe).", url:"https://mp3cut.net"},
   ],
   "grid-pages":[
     {id:"vente", ic:"🛒", nm:"Page de vente (Systeme.io)", ds:"Ta page de vente / tunnel. Colle ici son adresse exacte.", url:"https://systeme.io/dashboard"},
     {id:"ecoute", ic:"▶️", nm:"Pages d'écoute", ds:"Le site des pages d'écoute des clientes.", url:"https://ecoute.storybeat.fr"},
-    {id:"moteur", ic:"⚙️", nm:"Moteur (Vercel)", ds:"L'automatisation Phase 1.", url:"https://storybeat-moteur.vercel.app"},
     {id:"site", ic:"🏠", nm:"Site storybeat.fr", ds:"Ton site principal.", url:"https://storybeat.fr"},
   ],
   "grid-services":[
