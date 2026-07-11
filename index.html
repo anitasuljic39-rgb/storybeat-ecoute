@@ -73,6 +73,21 @@ video{width:100%;border-radius:18px;margin-top:8px;background:#000}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .state{text-align:center;padding:60px 20px;color:var(--muted)}
 .state h1{font-family:var(--display);color:var(--white);font-size:22px;margin-bottom:10px}
+
+.lyric-hero{position:relative;width:100%;aspect-ratio:1/1;max-height:360px;border-radius:22px;overflow:hidden;margin-bottom:22px;
+  background:radial-gradient(70% 55% at 50% 32%,rgba(155,77,255,.30),transparent 72%),linear-gradient(160deg,#171322,#0b0a10);
+  border:1px solid rgba(255,255,255,.10);box-shadow:0 24px 60px -26px rgba(155,77,255,.55)}
+.lyric-hero::before,.lyric-hero::after{content:"";position:absolute;left:0;right:0;height:70px;z-index:2;pointer-events:none}
+.lyric-hero::before{top:0;background:linear-gradient(#0b0a10,transparent)}
+.lyric-hero::after{bottom:0;background:linear-gradient(transparent,#0b0a10)}
+.lyric-hero .scroll{position:absolute;left:0;right:0;top:0;padding:44% 24px 60% 24px;text-align:center;transition:transform .4s ease}
+.lyric-hero .kl{font-family:'Sora',sans-serif;font-weight:600;font-size:19px;line-height:1.5;margin:14px 0;color:rgba(255,255,255,.30);transition:color .3s,opacity .3s,transform .3s}
+.lyric-hero .kl.on{color:#fff;text-shadow:0 0 18px rgba(255,58,168,.45);transform:scale(1.04)}
+.lyric-hero.freeflow{overflow-y:auto}
+.lyric-hero.freeflow .scroll{position:relative;padding:34px 24px;transition:none}
+.lyric-hero.freeflow .kl{color:rgba(255,255,255,.9)}
+.lyric-hero.freeflow .kl.lab{color:#ff3aa8;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:22px}
+.video-hero{width:100%;border-radius:18px;margin-bottom:22px;background:#000}
 </style>
 </head>
 <body>
@@ -100,57 +115,60 @@ else{
 }
 function render(d){
   const isVideo=(d.type==='video');
-  const coverIsImg=(d.cover||'').startsWith('http');
-  const coverStyle=coverIsImg?`style="background-image:url('${d.cover}')"`:'';
-  const coverInner=coverIsImg?'':esc(d.cover||d.prenom?.[0]||'♪');
-  let media;
+  const hasKar=!isVideo && Array.isArray(d.karaoke) && d.karaoke.length>0;
+  let hero='';
   if(isVideo){
-    media=`<video src="${d.media}" controls playsinline></video>`;
+    hero=`<video class="video-hero" src="${d.media}" controls playsinline></video>`;
+  }else if(hasKar){
+    const lines=d.karaoke.map((k,i)=>`<div class="kl" data-i="${i}">${esc(k.l)}</div>`).join('');
+    hero=`<div class="lyric-hero" id="lhero"><div class="scroll" id="lscroll">${lines}</div></div>`;
   }else{
-    media=`
-      <div class="wave" id="wave">${'<span></span>'.repeat(20)}</div>
+    const lines=(d.paroles||[]).map(p=>`${p.label?`<div class="kl lab">${esc(p.label)}</div>`:''}<div class="kl">${esc(p.texte).replace(/\n/g,'<br>')}</div>`).join('');
+    hero=`<div class="lyric-hero freeflow"><div class="scroll">${lines||'<div class="kl">\u266a</div>'}</div></div>`;
+  }
+  let controls='';
+  if(!isVideo){
+    controls=`
       <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
       <div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div>
-      <button class="play" id="play" aria-label="Lecture">▶</button>
+      <button class="play" id="play" aria-label="Lecture">\u25b6</button>
       <audio id="audio" src="${d.media}" preload="metadata"></audio>`;
   }
-  const lyrics=(d.paroles||[]).map(p=>`
-    <div class="part"><div class="lab">${esc(p.label)}</div>
-    <p>${esc(p.texte).replace(/\n/g,'<br>')}</p></div>`).join('');
+  const dlLabel=isVideo?'\u2b07\ufe0f T\u00e9l\u00e9charger ma vid\u00e9o':'\u2b07\ufe0f T\u00e9l\u00e9charger ma chanson';
   app.innerHTML=`
     <div class="top">
       <div class="logo">STORY<span class="b">BEAT</span></div>
     </div>
     <div class="player-card">
-      <div class="cover" ${coverStyle}>${coverInner}<div class="note">🎵</div></div>
+      ${hero}
       <div class="eyebrow">Une chanson rien que pour toi</div>
       <div class="title">${esc(d.titre)}</div>
       <div class="for">${esc(d.pour||'')}</div>
-      ${media}
+      ${controls}
       <div class="dl-wrap">
-        <button class="dl-btn" id="dlbtn">⬇️ Télécharger ma chanson</button>
-        <a class="dl-fallback" id="dlfallback" href="${d.media}" target="_blank" rel="noopener" style="display:none">Ouvrir le fichier ↗</a>
-        <div><button class="upsell-btn" id="upsellbtn" style="display:none"><span class="upsell-ico">🎵</span><span class="upsell-txt">Obtenir l'autre version pour <span class="upsell-em">seulement</span> <span style="white-space:nowrap">9,90&nbsp;€</span></span></button></div>
+        <button class="dl-btn" id="dlbtn">${dlLabel}</button>
+        <a class="dl-fallback" id="dlfallback" href="${d.media}" target="_blank" rel="noopener" style="display:none">Ouvrir le fichier \u2197</a>
+        <div><button class="upsell-btn" id="upsellbtn" style="display:none"><span class="upsell-ico">\ud83c\udfb5</span><span class="upsell-txt">Obtenir l'autre version pour <span class="upsell-em">seulement</span> <span style="white-space:nowrap">9,90&nbsp;\u20ac</span></span></button></div>
       </div>
     </div>
-    ${lyrics?`<div class="lyrics"><h2>Les paroles</h2>${lyrics}</div>`:''}
     <div class="share">
       <div class="lab2">Partage cette chanson</div>
       <div class="share-row">
-        <button class="sbtn wa" onclick="shareWa()">💬 WhatsApp</button>
-        <button class="sbtn" onclick="copyLink()">🔗 Copier le lien</button>
-        <button class="sbtn" onclick="toggleQR()">▦ QR code</button>
+        <button class="sbtn wa" onclick="shareWa()">\ud83d\udcac WhatsApp</button>
+        <button class="sbtn" onclick="copyLink()">\ud83d\udd17 Copier le lien</button>
+        <button class="sbtn" onclick="toggleQR()">\u25a6 QR code</button>
       </div>
       <div id="qrbox"></div>
     </div>
     <div class="foot">
-      <p>Cette chanson a été créée sur-mesure avec StoryBeat.</p>
-      <a class="cta" href="https://www.storybeat.fr">🎵 Crée la tienne</a>
+      <p>Cette chanson a \u00e9t\u00e9 cr\u00e9\u00e9e sur-mesure avec StoryBeat.</p>
+      <a class="cta" href="https://www.storybeat.fr">\ud83c\udfb5 Cr\u00e9e la tienne</a>
     </div>`;
-  if(!isVideo) setupAudio();
+  if(!isVideo) setupAudio(hasKar?d.karaoke:null);
   setupDownload(d);
   setupUpsell();
 }
+
 const STRIPE_LINK='https://buy.stripe.com/14AfZh7G63bi3ZB8QG7bW00';
 function invertId(rawId){
   if(!rawId) return null;
@@ -211,21 +229,38 @@ function setupDownload(d){
     }
   };
 }
-function setupAudio(){
+function setupAudio(karaoke){
   const audio=document.getElementById('audio');
   const play=document.getElementById('play');
-  const wave=document.getElementById('wave');
   const fill=document.getElementById('fill');
   const bar=document.getElementById('bar');
   const cur=document.getElementById('cur');
   const dur=document.getElementById('dur');
-  document.querySelectorAll('#wave span').forEach((s,i)=>{s.style.animationDelay=(i*0.06)+'s';s.style.height=(30+((i*37)%70))+'%';});
+  const scroll=document.getElementById('lscroll');
+  const hero=document.getElementById('lhero');
+  const lines=scroll?[...scroll.querySelectorAll('.kl')]:[];
+  let activeIdx=-1;
+  function syncKaraoke(){
+    if(!karaoke||!hero) return;
+    const t=audio.currentTime;
+    let idx=-1;
+    for(let i=0;i<karaoke.length;i++){ if(karaoke[i].t<=t+0.15) idx=i; else break; }
+    if(idx===activeIdx) return;
+    activeIdx=idx;
+    lines.forEach((el,i)=>el.classList.toggle('on',i===idx));
+    if(idx>=0 && lines[idx]){
+      const el=lines[idx];
+      const target=Math.max(0, el.offsetTop - hero.clientHeight/2 + el.clientHeight/2);
+      scroll.style.transform='translateY(-'+target+'px)';
+    }
+  }
   audio.addEventListener('loadedmetadata',()=>{dur.textContent=fmt(audio.duration);});
-  audio.addEventListener('timeupdate',()=>{fill.style.width=(audio.currentTime/audio.duration*100||0)+'%';cur.textContent=fmt(audio.currentTime);});
-  audio.addEventListener('ended',()=>{play.textContent='▶';wave.classList.remove('playing');});
-  play.onclick=()=>{ if(audio.paused){audio.play();play.textContent='❚❚';wave.classList.add('playing');} else {audio.pause();play.textContent='▶';wave.classList.remove('playing');} };
-  bar.onclick=(e)=>{const rect=bar.getBoundingClientRect();audio.currentTime=(e.clientX-rect.left)/rect.width*audio.duration;};
+  audio.addEventListener('timeupdate',()=>{fill.style.width=(audio.currentTime/audio.duration*100||0)+'%';cur.textContent=fmt(audio.currentTime);syncKaraoke();});
+  audio.addEventListener('ended',()=>{play.textContent='\u25b6';});
+  play.onclick=()=>{ if(audio.paused){audio.play();play.textContent='\u275a\u275a';} else {audio.pause();play.textContent='\u25b6';} };
+  bar.onclick=(e)=>{const rect=bar.getBoundingClientRect();audio.currentTime=(e.clientX-rect.left)/rect.width*audio.duration;syncKaraoke();};
 }
+
 function copyLink(){const u=location.href;if(navigator.clipboard){navigator.clipboard.writeText(u).then(()=>toast('Lien copié ! ✨')).catch(()=>toast(u));}else toast(u);}
 function shareWa(){const u=encodeURIComponent(location.href);window.open('https://wa.me/?text='+u,'_blank');}
 function toggleQR(){
