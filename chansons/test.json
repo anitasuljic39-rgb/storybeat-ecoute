@@ -5,5 +5,19 @@
   "type": "audio",
   "media": "https://storybeat.b-cdn.net/athman-a.mp3",
   "cover": "T",
-  "paroles": []
+  "paroles": [],
+  "karaoke": [
+    {
+      "t": 4.4,
+      "l": "hanifa bjdhcdz"
+    },
+    {
+      "t": 4.4,
+      "l": "odzjizjvriz"
+    },
+    {
+      "t": 8.93,
+      "l": "jzijvozirjr"
+    }
+  ]
 }
