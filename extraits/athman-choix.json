@@ -1,0 +1,15 @@
+{
+  "prenom": "athman",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/athman/athman-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=athman-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/athman/athman-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=athman-b"
+    }
+  ]
+}
