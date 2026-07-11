@@ -95,13 +95,16 @@ const BUNNY='https://storybeat.b-cdn.net/';
 const SITE='https://ecoute.storybeat.fr/';
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
 function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+document.getElementById('id').addEventListener('input',()=>{ document.getElementById('id').dataset.coded=''; });
 document.querySelectorAll('input[name="nb"]').forEach(r=>r.addEventListener('change',()=>{
   document.getElementById('boxB').style.display=(document.querySelector('input[name="nb"]:checked').value==='2')?'block':'none';
 }));
 function fail(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show');e.scrollIntoView({behavior:'smooth'});}
 function generer(){
   document.getElementById('err').classList.remove('show');
-  const id=slug(document.getElementById('id').value);
+  const _idE=document.getElementById('id');
+  let id=slug(_idE.value);
+  if(id && _idE.dataset.coded!=='1'){ id=id+'-'+Math.random().toString(36).slice(2,6); _idE.value=id; _idE.dataset.coded='1'; }
   const prenom=document.getElementById('prenom').value.trim();
   const two=document.querySelector('input[name="nb"]:checked').value==='2';
   const mediaA=document.getElementById('mediaA').value.trim();

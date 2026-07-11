@@ -109,13 +109,14 @@ function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-
 const prenom=document.getElementById('prenom');
 const idF=document.getElementById('id');
 prenom.addEventListener('input',()=>{ if(!idF.dataset.edited){ idF.value=slug(prenom.value); } });
-idF.addEventListener('input',()=>{ idF.dataset.edited='1'; });
+idF.addEventListener('input',()=>{ idF.dataset.edited='1'; idF.dataset.coded=''; });
 document.querySelectorAll('input[name="cover"]').forEach(r=>r.addEventListener('change',()=>{
   document.getElementById('photo').style.display=(document.querySelector('input[name="cover"]:checked').value==='photo')?'block':'none';
 }));
 function generer(){
   const err=document.getElementById('err');err.classList.remove('show');
-  const id=slug(idF.value||prenom.value);
+  let id=slug(idF.value||prenom.value);
+  if(id && idF.dataset.coded!=='1'){ const _c=Math.random().toString(36).slice(2,6); const _m=id.match(/^(.*)-([ab])$/); id=_m?(_m[1]+'-'+_c+'-'+_m[2]):(id+'-'+_c); idF.value=id; idF.dataset.edited='1'; idF.dataset.coded='1'; }
   const titre=document.getElementById('titre').value.trim();
   const media=document.getElementById('media').value.trim();
   const type=document.querySelector('input[name="type"]:checked').value;
