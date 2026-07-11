@@ -76,26 +76,18 @@ textarea{min-height:70px;resize:vertical}
     <label class="q">Nom du fichier sur Bunny <span class="hint">(ex : sarah.mp3 ou sarah.mp4)</span></label>
     <input id="media" placeholder="sarah.mp3">
   </div>
-  <div class="grp">
-    <label class="q">Pochette</label>
-    <div class="radio">
-      <label><input type="radio" name="cover" value="initiale" checked> 🔤 Initiale automatique</label>
-      <label><input type="radio" name="cover" value="photo"> 🖼️ Photo</label>
-    </div>
-    <input id="photo" placeholder="Nom du fichier photo sur Bunny (ex : sarah.jpg)" style="margin-top:10px;display:none">
-  </div>
-  <div class="grp">
-    <label class="q">Paroles <span class="hint">(colle tout d'un coup depuis Suno)</span></label>
-    <textarea id="paroles-txt" style="min-height:340px" placeholder="Colle ici toutes les paroles…"></textarea>
-  </div>
   <div class="err" id="err"></div>
-  <div class="gen">
-    <button class="btn grad" type="button" onclick="generer()">⬇ Générer et télécharger la fiche</button>
+  <div class="grp">
+    <label class="q">Clé GitHub <span class="hint">(collée une fois, gardée dans ton navigateur)</span></label>
+    <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
   </div>
+  <div class="gen">
+    <button class="btn grad" type="button" onclick="publier()">🚀 Publier sur GitHub</button>
+  </div>
+  <div id="pub-msg" style="margin-top:12px;font-size:14px"></div>
   <div class="out" id="out">
-    <h3>✅ Fiche prête !</h3>
-    <div class="line">Fichier téléchargé : <code id="o-file"></code></div>
-    <div class="line">➡ Dépose ce fichier dans le dossier <b>chansons/</b> de ton dépôt <b>storybeat-ecoute</b> sur GitHub.</div>
+    <h3>✅ Fiche publiée !</h3>
+    <div class="line">Fichier : <code id="o-file"></code></div>
     <div class="line">Lien à envoyer à ta cliente : <code id="o-link"></code> <button class="btn ghost small" type="button" onclick="copyLink()">Copier</button></div>
     <div class="warn" id="o-warn"></div>
   </div>
@@ -108,12 +100,25 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
 const prenom=document.getElementById('prenom');
 const idF=document.getElementById('id');
+try{ const _t=localStorage.getItem('sb_gh_token'); if(_t) document.getElementById('token').value=_t; }catch(e){}
 prenom.addEventListener('input',()=>{ if(!idF.dataset.edited){ idF.value=slug(prenom.value); } });
 idF.addEventListener('input',()=>{ idF.dataset.edited='1'; idF.dataset.coded=''; });
-document.querySelectorAll('input[name="cover"]').forEach(r=>r.addEventListener('change',()=>{
-  document.getElementById('photo').style.display=(document.querySelector('input[name="cover"]:checked').value==='photo')?'block':'none';
-}));
-function generer(){
+function _mkcode(){ return Math.random().toString(36).slice(2,6); }
+function makeUnique(){
+  if(idF.dataset.coded==='1') return;
+  let id=slug(idF.value||prenom.value);
+  if(!id) return;
+  const _m=id.match(/^(.*)-([ab])$/);
+  id=_m?(_m[1]+'-'+_mkcode()+'-'+_m[2]):(id+'-'+_mkcode());
+  idF.value=id; idF.dataset.edited='1'; idF.dataset.coded='1';
+}
+prenom.addEventListener('blur',makeUnique);
+idF.addEventListener('blur',makeUnique);
+function publier(){ return _publier(); }
+const REPO='anitasuljic39-rgb/storybeat-ecoute';
+function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
+function pubmsg(m,c){ const e=document.getElementById('pub-msg'); e.textContent=m; e.style.color=c||'#9a90a6'; }
+async function _publier(){
   const err=document.getElementById('err');err.classList.remove('show');
   let id=slug(idF.value||prenom.value);
   if(id && idF.dataset.coded!=='1'){ const _c=Math.random().toString(36).slice(2,6); const _m=id.match(/^(.*)-([ab])$/); id=_m?(_m[1]+'-'+_c+'-'+_m[2]):(id+'-'+_c); idF.value=id; idF.dataset.edited='1'; idF.dataset.coded='1'; }
@@ -123,24 +128,33 @@ function generer(){
   if(!id){return fail('Il manque le prénom / l\'identifiant.');}
   if(!titre){return fail('Il manque le titre.');}
   if(!media){return fail('Il manque le nom du fichier Bunny (ex : sarah.mp3).');}
-  let cover;
-  if(document.querySelector('input[name="cover"]:checked').value==='photo'){
-    const ph=document.getElementById('photo').value.trim();
-    if(!ph){return fail('Tu as choisi une photo mais le nom du fichier photo est vide.');}
-    cover=BUNNY+ph;
-  }else{
-    cover=(prenom.value.trim()[0]||'♪').toUpperCase();
-  }
-  const txt = document.getElementById('paroles-txt').value;
-  const paroles = txt.trim() ? [{ label:"", texte: txt }] : [];
+  const cover=(prenom.value.trim()[0]||'\u266a').toUpperCase();
+  const paroles=[];
   const fiche={prenom:prenom.value.trim(),titre:titre,pour:document.getElementById('pour').value.trim(),type:type,media:BUNNY+media,cover:cover,paroles:paroles};
-  const blob=new Blob([JSON.stringify(fiche,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=id+'.json';a.click();
-  document.getElementById('o-file').textContent=id+'.json';
+  const token=document.getElementById('token').value.trim();
+  if(!token){ return fail('Colle ta clé GitHub pour publier.'); }
+  try{ localStorage.setItem('sb_gh_token',token); }catch(e){}
+  const url='https://api.github.com/repos/'+REPO+'/contents/chansons/'+encodeURIComponent(id)+'.json';
+  const headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'};
+  pubmsg('V\u00e9rification\u2026','#9fd3ff');
+  let sha=null;
+  try{
+    const g=await fetch(url+'?t='+Date.now(),{headers});
+    if(g.status===200){ const meta=await g.json(); sha=meta.sha; if(!confirm('\u26a0\ufe0f Une fiche existe d\u00e9j\u00e0 pour \u00ab '+id+' \u00bb.\n\nVeux-tu la corriger (remplacer) ?')){ pubmsg('Publication annul\u00e9e.','#ffcf6b'); return; } }
+    else if(g.status===401||g.status===403){ return fail('Cl\u00e9 GitHub refus\u00e9e. V\u00e9rifie-la (permission Contents: Read and write).'); }
+    else if(g.status!==404){ return fail('Erreur GitHub ('+g.status+').'); }
+    pubmsg(sha?'Correction en cours\u2026':'Publication en cours\u2026','#9fd3ff');
+    const body={message:(sha?'Correction fiche ':'Ajout fiche ')+id, content:b64enc(JSON.stringify(fiche,null,2)+'\n')};
+    if(sha) body.sha=sha;
+    const p=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+    if(!p.ok){ const e=await p.json().catch(()=>({})); return fail('\u00c9chec : '+(e.message||('erreur '+p.status))); }
+  }catch(e){ return fail('Probl\u00e8me de connexion. R\u00e9-essaie (et v\u00e9rifie que tu es bien sur la version en ligne de l\'outil).'); }
+  document.getElementById('o-file').textContent='chansons/'+id+'.json';
   document.getElementById('o-link').textContent=SITE+'?id='+id;
-  document.getElementById('o-warn').textContent='⚠️ Vérifie que "'+media+'"'+(document.querySelector('input[name="cover"]:checked').value==='photo'?' et la photo':'')+' sont bien déjà sur Bunny.';
+  document.getElementById('o-warn').textContent='\u26a0\ufe0f V\u00e9rifie que "'+media+'" est bien d\u00e9j\u00e0 sur Bunny.';
   document.getElementById('out').classList.add('show');
   window._link=SITE+'?id='+id;
+  pubmsg(sha?'\u2705 Fiche corrig\u00e9e et publi\u00e9e !':'\u2705 Fiche publi\u00e9e !','#6be3a0');
 }
 function fail(m){const err=document.getElementById('err');err.textContent=m;err.classList.add('show');err.scrollIntoView({behavior:'smooth'});}
 function copyLink(){if(navigator.clipboard&&window._link){navigator.clipboard.writeText(window._link).then(()=>toast('Lien copié ! ✨'));}}
