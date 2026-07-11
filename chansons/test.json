@@ -1,0 +1,9 @@
+{
+  "prenom": "test",
+  "titre": "Chanson de test",
+  "pour": "Essai du bouton publier",
+  "type": "audio",
+  "media": "https://storybeat.b-cdn.net/athman-a.mp3",
+  "cover": "T",
+  "paroles": []
+}
