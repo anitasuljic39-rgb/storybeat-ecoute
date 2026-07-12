@@ -85,6 +85,7 @@
   <div class="note">🎵 <b>Ce qui se passe maintenant</b> — On se met au travail, et tu recevras ton extrait à valider sous 24h, directement par email.</div>
 
   <div class="formwrap" id="formCard">
+    <div id="carteLabel" style="text-align:center;font-weight:800;color:#ff3aa8;margin-bottom:10px"></div>
     <h2>🎁 Personnalise ta carte à offrir</h2>
     <div class="sub">Incluse avec ta formule <b style="color:#2a1c28">Essentielle</b>. Elle accompagnera ta chanson, avec un QR à scanner pour l'écouter.</div>
 
@@ -119,18 +120,15 @@
     <h2>C'est noté, merci !</h2>
     <p>Ta carte sera préparée avec soin et accompagnera ta chanson.<br>Tu recevras tout par email très vite. 🎶</p>
   <div id="gate2c" style="margin-top:24px;padding:20px;border:1px solid rgba(255,58,168,.4);border-radius:14px;background:rgba(255,58,168,.06);text-align:center;max-width:480px;margin-left:auto;margin-right:auto">
-    <p style="margin:0 0 14px;font-size:15px;line-height:1.5;color:#f4f0fb">
-      ➕ As-tu ajouté une <strong>2ᵉ chanson</strong> à ta commande ?<br>Si oui, remplis vite ses détails pour qu'on la crée aussi.
-    </p>
-    <a href="https://questionnaire.storybeat.fr/?chanson=2"
-       style="display:inline-block;background:#ff2e88;color:#fff;font-weight:800;text-decoration:none;padding:13px 22px;border-radius:12px;box-shadow:0 0 14px rgba(255,46,136,.5)">
-      Oui, remplir le formulaire
-    </a>
-    <div>
-      <button type="button" onclick="document.getElementById('gate2c').style.display='none'"
-        style="margin-top:12px;border:none;background:transparent;color:#9a90a6;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
-        Non, je n'ai pas pris de 2ᵉ chanson
-      </button>
+    <p style="margin:0 0 14px;font-size:15px;line-height:1.5;color:#f4f0fb">➕ Ta commande contient-elle une <strong>2ᵉ chanson</strong> ?</p>
+    <div id="ask2">
+      <button type="button" id="oui2" style="background:#ff2e88;color:#fff;font-weight:800;border:none;padding:12px 20px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:15px">Oui, j'ai 2 chansons</button>
+      <button type="button" id="non2" style="margin-left:8px;border:none;background:transparent;color:#9a90a6;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Non</button>
+    </div>
+    <div id="deux2" style="display:none">
+      <p style="margin:14px 0;font-size:14px;color:#cfc6d6">Deux petites choses pour ta 2ᵉ chanson :</p>
+      <button type="button" id="btn2carte" style="display:block;width:100%;background:#ff2e88;color:#fff;font-weight:800;border:none;padding:13px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:15px;box-shadow:0 0 14px rgba(255,46,136,.5)">➕ Créer ma 2ᵉ carte</button>
+      <a href="https://questionnaire.storybeat.fr/?chanson=2" style="display:block;margin-top:10px;background:rgba(255,255,255,.06);color:#f4f0fb;font-weight:700;text-decoration:none;padding:13px;border-radius:12px">📝 Remplir les détails de ma 2ᵉ chanson</a>
     </div>
   </div>
   </div>
@@ -186,12 +184,17 @@ send.onclick=async()=>{
 
   const old=send.textContent; send.textContent='⏳ Envoi…'; err.textContent='';
   const params={ formule:FORMULE, from_email:inEmail.value.trim(), message:inMsg.value.trim(),
-    signature:inSign.value.trim(), template:template };
+    signature:inSign.value.trim(), template:template, carte_num:carteNum };
   try{
     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
     document.getElementById('formCard').style.display='none';
     document.getElementById('okCard').style.display='block';
     window.scrollTo({top:0,behavior:'smooth'});
+    if(carteNum===2){
+      const b=document.getElementById('btn2carte'); if(b) b.style.display='none';
+      document.getElementById('ask2').style.display='none';
+      document.getElementById('deux2').style.display='block';
+    }
   }catch(e){
     console.error(e);
     err.textContent="Oups, l'envoi n'a pas marché. Réessaie ou écris-nous à contact@storybeat.fr.";
@@ -215,6 +218,26 @@ document.getElementById('lbx').onclick=()=>lb.classList.remove('on');
 lb.onclick=(e)=>{ if(e.target===lb) lb.classList.remove('on'); };
 
 counters();
+
+let carteNum = 1;
+const carteLabel = document.getElementById('carteLabel');
+document.getElementById('oui2').onclick = () => {
+  document.getElementById('ask2').style.display='none';
+  document.getElementById('deux2').style.display='block';
+};
+document.getElementById('non2').onclick = () => {
+  document.getElementById('gate2c').style.display='none';
+};
+document.getElementById('btn2carte').onclick = () => {
+  carteNum = 2;
+  inMsg.value=''; inSign.value=''; template=null;
+  document.querySelectorAll('#tpls .tpl').forEach(t=>t.classList.remove('sel'));
+  err.textContent=''; send.textContent='Valider ma carte';
+  carteLabel.textContent='🎵 Carte n°2 (pour ta 2ᵉ chanson)';
+  document.getElementById('okCard').style.display='none';
+  document.getElementById('formCard').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
 </script>
 </body>
 </html>
