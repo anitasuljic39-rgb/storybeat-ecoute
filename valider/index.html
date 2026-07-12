@@ -112,7 +112,7 @@ function render(d){
       const v=d.versions[+b.dataset.idx];
       const vlabel=v.label||'Version unique';
       confirmDialog({
-        text:'Es-tu sûre ? En confirmant, tu reçois ta chanson complète '+esc(vlabel)+' et cet achat devient définitif (plus de remboursement possible).',
+        text:'En confirmant, tu reçois ta chanson complète, cet achat devient définitif (plus de remboursement possible).',
         okLabel:'Oui, je confirme mon choix',
         onOk:()=>doValidate(v)
       });
