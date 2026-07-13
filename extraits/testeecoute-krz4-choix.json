@@ -1,0 +1,10 @@
+{
+  "prenom": "test ecoute",
+  "versions": [
+    {
+      "label": "Version unique",
+      "media": "https://storybeat.b-cdn.net/testeecoute-krz4/testeecoute-krz4-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testeecoute-krz4-a"
+    }
+  ]
+}
