@@ -1,0 +1,15 @@
+{
+  "prenom": "hanifa",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/hanifa-xnnh/hanifa-xnnh-a-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=hanifa-xnnh-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/hanifa-xnnh/hanifa-xnnh-b-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=hanifa-xnnh-b"
+    }
+  ]
+}
