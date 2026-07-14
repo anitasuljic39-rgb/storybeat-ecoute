@@ -1,0 +1,15 @@
+{
+  "prenom": "test2",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/test2-dmxk/test2-dmxk-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=test2-dmxk-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/test2-dmxk/test2-dmxk-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=test2-dmxk-b"
+    }
+  ]
+}
