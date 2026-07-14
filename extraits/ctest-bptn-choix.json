@@ -1,0 +1,15 @@
+{
+  "prenom": "ctest",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/ctest-bptn/ctest-bptn-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=ctest-bptn-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/ctest-bptn/ctest-bptn-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=ctest-bptn-b"
+    }
+  ]
+}
