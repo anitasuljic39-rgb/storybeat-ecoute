@@ -1,0 +1,15 @@
+{
+  "prenom": "test upload",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/testupload-8rqa/testupload-8rqa-a-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=testupload-8rqa-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/testupload-8rqa/testupload-8rqa-b-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=testupload-8rqa-b"
+    }
+  ]
+}
