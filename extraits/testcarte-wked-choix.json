@@ -1,0 +1,15 @@
+{
+  "prenom": "testcarte",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/testcarte-wked/testcarte-wked-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testcarte-wked-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/testcarte-wked/testcarte-wked-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testcarte-wked-b"
+    }
+  ]
+}
