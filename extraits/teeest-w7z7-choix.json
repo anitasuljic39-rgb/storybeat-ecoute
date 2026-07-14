@@ -1,0 +1,15 @@
+{
+  "prenom": "ch2",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/teeest-w7z7/teeest-w7z7-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=teeest-w7z7-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/teeest-w7z7/teeest-w7z7-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=teeest-w7z7-b"
+    }
+  ]
+}
