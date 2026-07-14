@@ -1,0 +1,15 @@
+{
+  "prenom": "testcalage",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/testcalage-q15x/testcalage-q15x-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testcalage-q15x-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/testcalage-q15x/testcalage-q15x-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testcalage-q15x-b"
+    }
+  ]
+}
