@@ -1,0 +1,15 @@
+{
+  "prenom": "clara",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/clara-87uh/clara-87uh-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=clara-87uh-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/clara-87uh/clara-87uh-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=clara-87uh-b"
+    }
+  ]
+}
