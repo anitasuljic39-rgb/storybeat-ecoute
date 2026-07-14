@@ -315,7 +315,9 @@ document.getElementById('dl').onclick=async function(){
       ]);
     }
     const cv=await renderPNG();
-    await saveCanvas(cv,'carte-'+current+'.png');
+    // Nom déduit du lien du QR (auto-cohérent) : carte-{id}.png ; sinon nom actuel carte-{current}.png
+    var _id=''; try{ var _m=(inLink.value||'').match(/[?&]id=([^&]+)/); if(_m) _id=decodeURIComponent(_m[1]).replace(/[^A-Za-z0-9-]/g,''); }catch(e){}
+    await saveCanvas(cv, _id ? ('carte-'+_id+'.png') : ('carte-'+current+'.png'));
     btn.textContent='✅ Téléchargée !';
     setTimeout(()=>{btn.textContent=old;},1500);
   }catch(e){
