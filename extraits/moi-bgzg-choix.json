@@ -1,0 +1,15 @@
+{
+  "prenom": "erget",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/moi-bgzg/moi-bgzg-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=moi-bgzg-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/moi-bgzg/moi-bgzg-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=moi-bgzg-b"
+    }
+  ]
+}
