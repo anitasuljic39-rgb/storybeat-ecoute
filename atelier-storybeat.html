@@ -212,6 +212,12 @@ function makeQR(){
 }
 document.getElementById('genqr').onclick=makeQR;
 inLink.addEventListener('input',()=>{ if(inLink.value.trim().length>8) makeQR(); });
+// Pré-remplissage optionnel depuis le Moteur : ?lien=... remplit le lien du QR (seulement si le champ est vide).
+// Sans ce paramètre, l'Atelier fonctionne exactement comme avant.
+try{
+  var _lien=new URLSearchParams(location.search).get('lien');
+  if(_lien && !inLink.value.trim()){ inLink.value=_lien; makeQR(); }
+}catch(e){}
 
 // ====== NUDGE ======
 const STEP={logo:0.5,msg:0.5,qr:0.5,signV:0.4,signH:0.6};
