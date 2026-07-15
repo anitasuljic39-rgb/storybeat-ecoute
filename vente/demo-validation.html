@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoryBeat — Démo : valide ton extrait</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+:root{--bg:#0b0a10;--card:#1c1926;--card2:#26212f;--pink:#ff3aa8;--violet:#9b4dff;--cyan:#1fd6ff;--white:#fff;--muted:rgba(255,255,255,.62);--line:rgba(255,255,255,.14);--grad3:linear-gradient(90deg,#ff3aa8,#9b4dff,#1fd6ff);--display:'Sora',sans-serif;--body:'Manrope',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--white);font-family:var(--body);min-height:100vh;padding:34px 20px 60px;background:radial-gradient(60% 40% at 50% 0%,rgba(155,77,255,.22),transparent 70%),var(--bg)}
+.wrap{max-width:520px;margin:0 auto}
+.logo{font-family:var(--display);font-weight:800;font-style:italic;font-size:20px;text-align:center;margin-bottom:26px}
+.logo .b{background:var(--grad3);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:8px}
+h1{font-family:var(--display);font-weight:800;font-size:25px;text-align:center;line-height:1.2;margin-bottom:10px}
+.intro{color:var(--muted);text-align:center;font-size:15px;margin-bottom:30px}
+.vcard{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:22px 20px;margin-bottom:18px}
+.vcard.two{background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad3) border-box;border:1.5px solid transparent}
+.vlabel{font-family:var(--display);font-weight:700;font-size:18px;margin-bottom:14px;text-align:center}
+/* mini-lecteur figé (démo, sans vrai audio) — reprend les codes couleur de la marque */
+.fauxplayer{display:flex;align-items:center;gap:14px;background:#12101a;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:16px}
+.fauxplayer .pp{width:42px;height:42px;border-radius:50%;flex:none;background:var(--grad3);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 10px 24px -10px rgba(255,58,168,.6)}
+.fauxplayer .fw{flex:1;display:flex;align-items:flex-end;gap:2px;height:26px}
+.fauxplayer .fw i{flex:1;min-width:2px;border-radius:2px;background:linear-gradient(180deg,rgba(255,58,168,.75),rgba(31,214,255,.5))}
+.fauxplayer .fd{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.btn-val{width:100%;border:none;cursor:pointer;font-family:var(--display);font-weight:700;font-size:16px;color:#fff;border-radius:14px;padding:15px;background:var(--grad3);box-shadow:0 12px 30px -10px rgba(155,77,255,.6);transition:transform .12s,opacity .2s}
+.btn-val:hover{transform:translateY(-1px)}
+.softnote{color:var(--muted);text-align:center;font-size:12.5px;line-height:1.5;margin:16px 0 6px;opacity:.85}
+.refund{text-align:center;margin:2px 0 24px}
+.refund-link{background:none;border:none;color:var(--muted);font-family:var(--body);font-size:13px;text-decoration:underline;cursor:pointer;padding:6px 8px}
+.refund-link:hover{color:var(--white)}
+.mini{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
+.demo-pill{display:block;width:fit-content;margin:0 auto 22px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 12px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.3s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">STORY<span class="b">BEAT</span></div>
+  <span class="demo-pill">Aperçu</span>
+  <div class="eyebrow">Ton extrait à valider</div>
+  <h1>Choisis ta version préférée</h1>
+  <div class="intro">Écoute les deux versions et choisis celle que tu préfères. Tu reçois aussitôt ta chanson complète.</div>
+
+  <div class="vcard two">
+    <div class="vlabel">Version A</div>
+    <div class="fauxplayer" id="fpA"><div class="pp">▶</div><div class="fw"></div><div class="fd">0:24</div></div>
+    <button class="btn-val" onclick="demoToast('Sur la vraie page, ce bouton valide la Version A ✅')">🎧 Je choisis la Version A</button>
+  </div>
+
+  <div class="vcard two">
+    <div class="vlabel">Version B</div>
+    <div class="fauxplayer" id="fpB"><div class="pp">▶</div><div class="fw"></div><div class="fd">0:24</div></div>
+    <button class="btn-val" onclick="demoToast('Sur la vraie page, ce bouton valide la Version B ✅')">🎧 Je choisis la Version B</button>
+  </div>
+
+  <div class="softnote">En validant, tu reçois ta chanson complète tout de suite. Ton choix est alors définitif.</div>
+  <div class="refund"><button type="button" class="refund-link" onclick="demoToast('Garantie satisfaite ou remboursée (démo)')">Aucune des deux ne me convient ? Je demande mon remboursement</button></div>
+  <div class="mini">Une question ? Écris-nous à contact@storybeat.fr</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// Waveforms figées des deux mini-lecteurs (démo, aucun son)
+function paintWave(el, seed){
+  var h='';
+  for(var i=0;i<26;i++){ var v=30+Math.round(60*Math.abs(Math.sin(i*seed))); h+='<i style="height:'+v+'%"></i>'; }
+  el.querySelector('.fw').innerHTML=h;
+}
+paintWave(document.getElementById('fpA'), 0.7);
+paintWave(document.getElementById('fpB'), 1.1);
+function demoToast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._x); t._x=setTimeout(function(){ t.classList.remove('show'); }, 2200); }
+</script>
+</body>
+</html>
