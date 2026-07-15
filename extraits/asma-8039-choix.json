@@ -1,0 +1,15 @@
+{
+  "prenom": "asma",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/asma-8039/asma-8039-a-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=asma-8039-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/asma-8039/asma-8039-b-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=asma-8039-b"
+    }
+  ]
+}
