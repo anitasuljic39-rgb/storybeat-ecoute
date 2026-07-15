@@ -10,5 +10,27 @@
       "label": "",
       "texte": "dfvefbetabve\ntebgfbteb\nvrbteet\nbebfbebet\nbvteabteb\n"
     }
+  ],
+  "karaoke": [
+    {
+      "t": 1.76,
+      "l": "dfvefbetabve"
+    },
+    {
+      "t": 4.17,
+      "l": "tebgfbteb"
+    },
+    {
+      "t": 6.45,
+      "l": "vrbteet"
+    },
+    {
+      "t": 8.4,
+      "l": "bebfbebet"
+    },
+    {
+      "t": 12.4,
+      "l": "bvteabteb"
+    }
   ]
 }
