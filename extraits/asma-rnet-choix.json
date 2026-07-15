@@ -1,0 +1,15 @@
+{
+  "prenom": "Asma",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/asma-rnet/asma-rnet-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=asma-rnet-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/asma-rnet/asma-rnet-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=asma-rnet-b"
+    }
+  ]
+}
