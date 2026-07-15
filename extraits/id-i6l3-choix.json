@@ -1,0 +1,15 @@
+{
+  "prenom": "id",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/id-i6l3/id-i6l3-a-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=id-i6l3-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/id-i6l3/id-i6l3-b-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=id-i6l3-b"
+    }
+  ]
+}
