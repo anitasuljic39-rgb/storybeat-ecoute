@@ -51,12 +51,23 @@ audio{width:100%;margin-bottom:16px}
 const PUBLIC_KEY='u6MuSGT1tR3q8I1pb';
 const SERVICE_ID='service_ehijilk';
 const TEMPLATE_ID='template_hrisr2w';
+// Endpoint public du Moteur : fait remonter validation/remboursement dans le carnet (BONUS).
+const MOTEUR_API='https://storybeat-moteur.vercel.app/api/set-statut';
 if(window.emailjs) emailjs.init({publicKey:PUBLIC_KEY});
 const app=document.getElementById('app');
 const id=new URLSearchParams(location.search).get('id');
 function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 // Prénom propre : repli "Cliente" si vide, 1re lettre en majuscule (clara → Clara).
 function cleanPrenom(p){ p=String(p==null?'':p).trim(); if(!p) return 'Cliente'; return p.charAt(0).toUpperCase()+p.slice(1); }
+// BONUS non-bloquant : fait remonter l'événement dans le carnet (via prod_id = id sans "-choix").
+// Fire-and-forget : aucun await, erreurs ignorées ; l'email + l'UX restent prioritaires.
+function notifyCarnet(type, version){
+  try{
+    const payload={ id_extrait:String(id||'').replace(/-choix$/,''), type:type };
+    if(version) payload.version=version;
+    fetch(MOTEUR_API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), keepalive:true }).catch(function(){});
+  }catch(e){}
+}
 function showError(m){app.innerHTML='<div class="state"><h1>Oups…</h1><p>'+m+'</p></div>';}
 function confirmDialog(opts){
   const ov=document.createElement('div');ov.className='modal-ov';
@@ -116,6 +127,7 @@ function render(d){
     const params={ titre:titre, message:message };
     const go=()=>{ location.href=v.final; };
     const ok=()=>{
+      notifyCarnet('validation', ab); // bonus carnet (keepalive → survit à la redirection)
       const dn=document.getElementById('done'); dn.classList.add('show'); dn.scrollIntoView({behavior:'smooth'});
       setTimeout(go,1200);
     };
@@ -147,7 +159,7 @@ function render(d){
     const titre = '⚠️ REMBOURSEMENT demandé — '+prenom;
     const message = '⚠️ '+prenom+' demande un REMBOURSEMENT pour son extrait (id : '+id+'). À traiter rapidement.';
     const rparams={ titre:titre, message:message, id:id };
-    const ok=()=>{ const rd=document.getElementById('refundDone'); rd.classList.add('show'); rd.scrollIntoView({behavior:'smooth'}); };
+    const ok=()=>{ notifyCarnet('remboursement'); const rd=document.getElementById('refundDone'); rd.classList.add('show'); rd.scrollIntoView({behavior:'smooth'}); };
     const fail=()=>{
       if(rl){ rl.disabled=false; rl.style.display=''; } // ré-affiche le lien pour réessayer
       showFail('<h2>⚠️ Envoi impossible</h2><p>Ta demande de remboursement n\'a pas pu être envoyée. Réessaie, ou écris-nous directement à contact@storybeat.fr pour qu\'on la traite.</p>');
