@@ -55,6 +55,8 @@ if(window.emailjs) emailjs.init({publicKey:PUBLIC_KEY});
 const app=document.getElementById('app');
 const id=new URLSearchParams(location.search).get('id');
 function esc(t){return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// Prénom propre : repli "Cliente" si vide, 1re lettre en majuscule (clara → Clara).
+function cleanPrenom(p){ p=String(p==null?'':p).trim(); if(!p) return 'Cliente'; return p.charAt(0).toUpperCase()+p.slice(1); }
 function showError(m){app.innerHTML='<div class="state"><h1>Oups…</h1><p>'+m+'</p></div>';}
 function confirmDialog(opts){
   const ov=document.createElement('div');ov.className='modal-ov';
@@ -94,39 +96,65 @@ function render(d){
     <div class="refund"><button type="button" class="refund-link" id="refund-link">Aucune des deux ne me convient ? Je demande mon remboursement</button></div>
     <div class="mini">Une question ? Écris-nous à contact@storybeat.fr</div>
     <div class="done" id="done"><h2>✅ Merci ${esc(d.prenom)} !</h2><p>On te redirige vers ta chanson…</p></div>
-    <div class="done" id="refundDone"><h2>✅ C'est noté</h2><p>Comme promis, tu seras remboursée — nous revenons vers toi très vite par e-mail.</p></div>`;
-  // Validation A/B : identique à avant (notification EmailJS + redirection), mais précédée d'une confirmation
-  function doValidate(v){
+    <div class="done" id="refundDone"><h2>✅ C'est noté</h2><p>Comme promis, tu seras remboursée — nous revenons vers toi très vite par e-mail.</p></div>
+    <div class="done" id="sendFail"></div>`;
+  // Affiche un état d'échec bien visible (ne jamais masquer une erreur d'envoi).
+  function showFail(html){ const f=document.getElementById('sendFail'); f.innerHTML=html; f.classList.add('show'); f.scrollIntoView({behavior:'smooth'}); }
+  function reenableButtons(){ app.querySelectorAll('.btn-val').forEach(x=>x.disabled=false); const rl=document.getElementById('refund-link'); if(rl){ rl.disabled=false; rl.style.display=''; } }
+  // Nombre de versions → dérive le libellé A/B (1re = A, 2e = B) ou "unique" s'il n'y en a qu'une.
+  const nbVersions=(d.versions||[]).length;
+
+  // Validation A/B : notification EmailJS (titre + message) puis redirection UNIQUEMENT si l'envoi a réussi.
+  function doValidate(v, idx){
     app.querySelectorAll('.btn-val').forEach(x=>x.disabled=true);
     const rl=document.getElementById('refund-link'); if(rl) rl.disabled=true;
-    const params={prenom:d.prenom, version:v.label||'Version unique'};
+    const prenom=cleanPrenom(d.prenom);
+    const ab = nbVersions>1 ? String.fromCharCode(65+idx) : 'unique'; // 0→A, 1→B
+    const titre = (ab==='unique') ? ('✅ '+prenom+' a validé son extrait')
+                                  : ('✅ '+prenom+' a validé la version '+ab);
+    const message = prenom+' a validé son extrait. Version choisie : '+ab+'.';
+    const params={ titre:titre, message:message };
     const go=()=>{ location.href=v.final; };
-    document.getElementById('done').classList.add('show');
-    document.getElementById('done').scrollIntoView({behavior:'smooth'});
+    const ok=()=>{
+      const dn=document.getElementById('done'); dn.classList.add('show'); dn.scrollIntoView({behavior:'smooth'});
+      setTimeout(go,1200);
+    };
+    const fail=()=>{
+      reenableButtons();
+      showFail('<h2>⚠️ Un souci est survenu</h2><p>La confirmation n\'a pas pu être envoyée. Réessaie dans un instant, ou écris-nous à contact@storybeat.fr.<br><a href="'+esc(v.final)+'">Accéder quand même à ta chanson »</a></p>');
+    };
     if(window.emailjs){
-      emailjs.send(SERVICE_ID,TEMPLATE_ID,params).then(()=>setTimeout(go,1200)).catch(()=>setTimeout(go,1200));
-    } else { setTimeout(go,1200); }
+      emailjs.send(SERVICE_ID,TEMPLATE_ID,params).then(ok).catch(fail);
+    } else { fail(); }
   }
   app.querySelectorAll('.btn-val').forEach(b=>{
     b.onclick=()=>{
-      const v=d.versions[+b.dataset.idx];
-      const vlabel=v.label||'Version unique';
+      const idx=+b.dataset.idx;
+      const v=d.versions[idx];
       confirmDialog({
         text:'En confirmant, tu reçois ta chanson complète, cet achat devient définitif (plus de remboursement possible).',
         okLabel:'Oui, je confirme mon choix',
-        onOk:()=>doValidate(v)
+        onOk:()=>doValidate(v, idx)
       });
     };
   });
-  // Demande de remboursement (garantie sans condition) : notification EmailJS + message, PAS de redirection
+  // Demande de remboursement : notification EmailJS (titre + message + id), PAS de redirection.
+  // On n'affiche "C'est noté" QUE si l'envoi a réussi (sinon la demande serait perdue sans que personne ne le sache).
   function doRefund(){
     app.querySelectorAll('.btn-val').forEach(x=>x.disabled=true);
     const rl=document.getElementById('refund-link'); if(rl){rl.disabled=true;rl.style.display='none';}
-    const rparams={prenom:d.prenom, version:'DEMANDE DE REMBOURSEMENT — id: '+id, id:id};
-    const show=()=>{ const rd=document.getElementById('refundDone'); rd.classList.add('show'); rd.scrollIntoView({behavior:'smooth'}); };
+    const prenom=cleanPrenom(d.prenom);
+    const titre = '⚠️ REMBOURSEMENT demandé — '+prenom;
+    const message = '⚠️ '+prenom+' demande un REMBOURSEMENT pour son extrait (id : '+id+'). À traiter rapidement.';
+    const rparams={ titre:titre, message:message, id:id };
+    const ok=()=>{ const rd=document.getElementById('refundDone'); rd.classList.add('show'); rd.scrollIntoView({behavior:'smooth'}); };
+    const fail=()=>{
+      if(rl){ rl.disabled=false; rl.style.display=''; } // ré-affiche le lien pour réessayer
+      showFail('<h2>⚠️ Envoi impossible</h2><p>Ta demande de remboursement n\'a pas pu être envoyée. Réessaie, ou écris-nous directement à contact@storybeat.fr pour qu\'on la traite.</p>');
+    };
     if(window.emailjs){
-      emailjs.send(SERVICE_ID,TEMPLATE_ID,rparams).then(show).catch(show);
-    } else { show(); }
+      emailjs.send(SERVICE_ID,TEMPLATE_ID,rparams).then(ok).catch(fail);
+    } else { fail(); }
   }
   const refundBtn=document.getElementById('refund-link');
   if(refundBtn) refundBtn.onclick=()=>{
