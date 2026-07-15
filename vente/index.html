@@ -84,19 +84,25 @@
   .lightbox{position:fixed; inset:0; background:rgba(5,3,8,0.93); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; z-index:200; padding:40px;}
   .lightbox.on{display:flex;}
   .lightbox img{max-width:min(900px,92vw); max-height:86vh; border-radius:16px; border:1px solid var(--pink); box-shadow:0 0 70px -10px rgba(255,58,168,0.5);}
+  .lightbox iframe{width:390px;max-width:92vw;height:85vh;border:0;border-radius:16px;background:#0d0a15;}
   .lightbox .close{position:absolute; top:26px; right:32px; color:#fff; font-size:34px; cursor:pointer; background:none; border:none; line-height:1;}
 
   /* CE QUE TU RECOIS */
   .receive{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:44px;}
   .rcard{background:var(--card); border:1px solid var(--line); border-radius:22px; padding:26px; text-align:center;}
-  .rcard .rimg{width:100%; aspect-ratio:4/5; border-radius:14px; margin-bottom:20px; overflow:hidden; border:1px solid var(--line); background:#0a0710;}
+  .rcard .rimg{position:relative;width:100%;height:430px;overflow:hidden;border-radius:14px;cursor:zoom-in;margin-bottom:20px;border:1px solid var(--line);}
   .rcard .rimg img{width:100%; height:100%; object-fit:cover; display:block;}
+  /* CARTE (rimg sans .demo) : image entière, centrée, fond sombre */
+  .rcard .rimg:not(.demo){display:flex;align-items:center;justify-content:center;background:#0d0a15;padding:16px;}
+  .rcard .rimg:not(.demo) img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;box-shadow:0 10px 34px rgba(0,0,0,.45);}
+  /* badge "Agrandir" en haut à droite de chaque aperçu */
+  .rcard .rimg .zoom-badge{position:absolute;top:10px;right:10px;z-index:5;background:rgba(10,7,16,.72);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;pointer-events:none;}
   .rcard .rimg.placeholder{border:1px dashed var(--line); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; color:var(--faint);}
   .rcard .rimg.placeholder .ico{font-size:40px; opacity:0.6;}
   .rcard .rimg.placeholder .lbl{font-size:12px; letter-spacing:0.04em; text-transform:uppercase; line-height:1.5;}
   .rcard .rimg.demo{position:relative; background:#0b0a10;}
-  .rcard .rimg.demo iframe{position:absolute; top:0; left:0; width:200%; height:200%; border:0; transform:scale(0.5); transform-origin:top left; pointer-events:none;}
-  .rcard .rimg.demo::after{content:""; position:absolute; inset:0; z-index:2; cursor:default;}
+  .rcard .rimg.demo iframe{position:absolute;top:0;left:0;width:200%;height:200%;transform:scale(0.5);transform-origin:top left;pointer-events:none;border:0;}
+  .rcard .rimg.demo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(180deg,rgba(13,10,21,0),rgba(13,10,21,.95));pointer-events:none;}
   .rcard h3{font-family:'Sora',sans-serif; font-weight:700; font-size:19px; color:#fff; margin-bottom:8px;}
   .rcard p{color:var(--muted); font-size:15px; line-height:1.55;}
   .rtag{display:inline-block; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; padding:5px 12px; border-radius:100px; margin-top:14px;
@@ -239,19 +245,19 @@
   <h2>Ce que vous recevez <em>après votre achat</em>.</h2>
   <div class="receive">
     <div class="rcard">
-      <div class="rimg demo"><iframe src="demo-validation.html" title="Page de validation" scrolling="no"></iframe></div>
+      <div class="rimg demo" onclick="zoomPage('demo-validation.html')"><span class="zoom-badge">🔍 Agrandir</span><iframe src="demo-validation.html" title="Page de validation" scrolling="no"></iframe></div>
       <h3>D'abord, des extraits à valider</h3>
       <p>Vous recevez une page où écouter les extraits de sa chanson. Ça vous touche ? Vous validez. Sinon, vous êtes remboursée.</p>
       <span class="rtag all">Toutes les formules</span>
     </div>
     <div class="rcard">
-      <div class="rimg demo"><iframe src="demo-ecoute.html" title="Page d'écoute" scrolling="no"></iframe></div>
+      <div class="rimg demo" onclick="zoomPage('demo-ecoute.html')"><span class="zoom-badge">🔍 Agrandir</span><iframe src="demo-ecoute.html" title="Page d'écoute" scrolling="no"></iframe></div>
       <h3>Puis sa page d'écoute partageable</h3>
       <p>Sa chanson sur une belle page, avec les paroles qui défilent en karaoké et un bouton pour la partager sur WhatsApp. En Premium, c'est une vraie vidéo montée avec vos fichiers uploadés.</p>
       <span class="rtag all">Toutes les formules</span>
     </div>
     <div class="rcard">
-      <div class="rimg"><img src="carte-amour.png" alt="Carte personnalisée"></div>
+      <div class="rimg" onclick="zoom('carte-amour.png')"><span class="zoom-badge">🔍 Agrandir</span><img src="carte-amour.png" alt="Carte personnalisée"></div>
       <h3>Et une carte + QR code</h3>
       <p>Une belle carte personnalisée avec votre message et votre signature. Elle scanne le QR code et accède à sa chanson.</p>
       <span class="rtag">Populaire & Premium</span>
@@ -359,15 +365,30 @@
 <div class="lightbox" id="lb" onclick="closeZoom(event)">
   <button class="close" onclick="closeZoom(event)">✕</button>
   <img id="lbImg" src="" alt="Carte en grand">
+  <iframe id="lbFrame" src="" title="Aperçu en grand"></iframe>
 </div>
 
 <script>
+// Agrandir une IMAGE (cartes) — comportement existant
 function zoom(src){
-  document.getElementById('lbImg').src = src;
+  var img=document.getElementById('lbImg'), fr=document.getElementById('lbFrame');
+  fr.src=''; fr.style.display='none';
+  img.src=src; img.style.display='';
+  document.getElementById('lb').classList.add('on');
+}
+// Agrandir une PAGE (aperçus démo en iframe)
+function zoomPage(src){
+  var img=document.getElementById('lbImg'), fr=document.getElementById('lbFrame');
+  img.src=''; img.style.display='none';
+  fr.src=src; fr.style.display='';
   document.getElementById('lb').classList.add('on');
 }
 function closeZoom(e){
-  if(e.target.id==='lb' || e.target.classList.contains('close')) document.getElementById('lb').classList.remove('on');
+  if(e.target.id==='lb' || e.target.classList.contains('close')){
+    document.getElementById('lb').classList.remove('on');
+    document.getElementById('lbFrame').src=''; // stoppe la démo à la fermeture
+    document.getElementById('lbImg').src='';
+  }
 }
 </script>
 </body>
