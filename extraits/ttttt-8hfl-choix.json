@@ -1,0 +1,15 @@
+{
+  "prenom": "tttttt",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/ttttt-8hfl/ttttt-8hfl-a-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=ttttt-8hfl-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/ttttt-8hfl/ttttt-8hfl-b-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=ttttt-8hfl-b"
+    }
+  ]
+}
