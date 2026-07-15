@@ -1,0 +1,10 @@
+{
+  "prenom": "mail",
+  "versions": [
+    {
+      "label": "Version unique",
+      "media": "https://storybeat.b-cdn.net/testmail-9j82/testmail-9j82-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testmail-9j82-a"
+    }
+  ]
+}
