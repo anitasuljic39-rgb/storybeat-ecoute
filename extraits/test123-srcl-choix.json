@@ -1,0 +1,15 @@
+{
+  "prenom": "test",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/test123-srcl/test123-srcl-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=test123-srcl-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/test123-srcl/test123-srcl-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=test123-srcl-b"
+    }
+  ]
+}
