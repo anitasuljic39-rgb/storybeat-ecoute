@@ -1,0 +1,15 @@
+{
+  "prenom": "test mail",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/testmail-t5a3/testmail-t5a3-a-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testmail-t5a3-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/testmail-t5a3/testmail-t5a3-b-extrait.mp3",
+      "final": "https://ecoute.storybeat.fr/?id=testmail-t5a3-b"
+    }
+  ]
+}
