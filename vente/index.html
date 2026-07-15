@@ -418,5 +418,20 @@ function closeZoom(e){
   }
 }
 </script>
+<script>
+(function(){
+  function sbPostHeight(){
+    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight,
+                     document.body.offsetHeight, document.documentElement.offsetHeight);
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ sbVenteHeight: h }, '*');
+    }
+  }
+  window.addEventListener('load', sbPostHeight);
+  window.addEventListener('resize', sbPostHeight);
+  if(window.ResizeObserver){ try{ new ResizeObserver(sbPostHeight).observe(document.body); }catch(e){} }
+  setTimeout(sbPostHeight,400); setTimeout(sbPostHeight,1200); setTimeout(sbPostHeight,3000);
+})();
+</script>
 </body>
 </html>
