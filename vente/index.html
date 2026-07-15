@@ -84,7 +84,7 @@
   .lightbox{position:fixed; inset:0; background:rgba(5,3,8,0.93); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; z-index:200; padding:40px;}
   .lightbox.on{display:flex;}
   .lightbox img{max-width:min(900px,92vw); max-height:86vh; border-radius:16px; border:1px solid var(--pink); box-shadow:0 0 70px -10px rgba(255,58,168,0.5);}
-  .lightbox iframe{width:390px;max-width:92vw;height:85vh;border:0;border-radius:16px;background:#0d0a15;}
+  .lightbox iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(1);transform-origin:center center;width:390px;border:0;border-radius:18px;background:#0d0a15;display:none;}
   .lightbox .close{position:absolute; top:26px; right:32px; color:#fff; font-size:34px; cursor:pointer; background:none; border:none; line-height:1;}
 
   /* CE QUE TU RECOIS */
@@ -376,17 +376,44 @@ function zoom(src){
   img.src=src; img.style.display='';
   document.getElementById('lb').classList.add('on');
 }
-// Agrandir une PAGE (aperçus démo en iframe)
+// Agrandir une PAGE (aperçus démo en iframe) : on affiche la page ENTIÈRE mise à l'échelle
+// pour tenir à l'écran d'un coup, sans défilement.
 function zoomPage(src){
-  var img=document.getElementById('lbImg'), fr=document.getElementById('lbFrame');
-  img.src=''; img.style.display='none';
-  fr.src=src; fr.style.display='';
-  document.getElementById('lb').classList.add('on');
+  document.getElementById('lbImg').style.display='none';
+  var f=document.getElementById('lbFrame');
+  f.style.display='block';
+  f.style.transform='translate(-50%,-50%) scale(1)';
+  f.style.height='800px';
+  document.getElementById('lb').classList.add('on'); // visible AVANT le chargement (sinon l'event load peut se perdre)
+  // Mesure la hauteur réelle de la page (même origine) dès que le corps est mesurable,
+  // et met à l'échelle pour tenir dans 90% de l'écran (largeur ET hauteur).
+  function applyFit(){
+    var doc; try{ doc=f.contentDocument||f.contentWindow.document; }catch(e){ f.style.height='85vh'; return; }
+    if(!doc || !doc.body) return;
+    var href=''; try{ href=doc.location.href; }catch(e){}
+    if(!href || href==='about:blank') return; // la vraie page n'est pas encore chargée
+    var h=Math.max(doc.body.scrollHeight, doc.documentElement?doc.documentElement.scrollHeight:0);
+    if(!h) return;
+    f.style.height=h+'px';
+    var maxH=window.innerHeight*0.9, maxW=window.innerWidth*0.94;
+    var scale=Math.min(maxW/390, maxH/h, 1);
+    f.style.transform='translate(-50%,-50%) scale('+scale+')';
+  }
+  f.onload=applyFit;
+  f.src=src;
+  // On ré-ajuste à chaque tick tant que la page se charge (une ressource lente comme une police
+  // ne bloque pas la mesure), et on s'arrête quand elle est complète ou après ~3s.
+  var tries=0, iv=setInterval(function(){
+    applyFit();
+    var done=false; try{ done=(f.contentDocument&&f.contentDocument.readyState==='complete'); }catch(e){ done=true; }
+    if(done || ++tries>60) clearInterval(iv);
+  }, 50);
 }
 function closeZoom(e){
   if(e.target.id==='lb' || e.target.classList.contains('close')){
     document.getElementById('lb').classList.remove('on');
-    document.getElementById('lbFrame').src=''; // stoppe la démo à la fermeture
+    var f=document.getElementById('lbFrame');
+    f.src=''; f.style.display='none'; // stoppe la démo + recalcul propre à la prochaine ouverture
     document.getElementById('lbImg').src='';
   }
 }
