@@ -372,12 +372,31 @@
 </div>
 
 <script>
+// Repositionne la lightbox dans la zone réellement visible quand la page est en iframe.
+// La page parente envoie { sbVisible: { top, height } } ; en dehors d'une iframe, on
+// garde le comportement d'origine (position:fixed; inset:0 défini en CSS).
+function sbPlaceLightbox(){
+  var lb=document.getElementById('lb');
+  if(!lb) return;
+  var inIframe = window.parent && window.parent!==window;
+  if(inIframe && window.__sbView && lb.classList.contains('on')){
+    lb.style.position='absolute';
+    lb.style.left='0';
+    lb.style.right='0';
+    lb.style.top=window.__sbView.top+'px';
+    lb.style.height=window.__sbView.height+'px';
+  }
+}
+window.addEventListener('message', function(e){
+  if(e.data && e.data.sbVisible){ window.__sbView = e.data.sbVisible; sbPlaceLightbox(); }
+});
 // Agrandir une IMAGE (cartes) — comportement existant
 function zoom(src){
   var img=document.getElementById('lbImg'), fr=document.getElementById('lbFrame');
   fr.src=''; fr.style.display='none';
   img.src=src; img.style.display='';
   document.getElementById('lb').classList.add('on');
+  sbPlaceLightbox();
 }
 // Agrandir une PAGE (aperçus démo en iframe) : on affiche la page ENTIÈRE mise à l'échelle
 // pour tenir à l'écran d'un coup, sans défilement.
@@ -388,6 +407,7 @@ function zoomPage(src){
   f.style.transform='translate(-50%,-50%) scale(1)';
   f.style.height='800px';
   document.getElementById('lb').classList.add('on'); // visible AVANT le chargement (sinon l'event load peut se perdre)
+  sbPlaceLightbox();
   // Mesure la hauteur réelle de la page (même origine) dès que le corps est mesurable,
   // et met à l'échelle pour tenir dans 90% de l'écran (largeur ET hauteur).
   function applyFit(){
@@ -414,7 +434,9 @@ function zoomPage(src){
 }
 function closeZoom(e){
   if(e.target.id==='lb' || e.target.classList.contains('close')){
-    document.getElementById('lb').classList.remove('on');
+    var lb=document.getElementById('lb');
+    lb.classList.remove('on');
+    lb.style.position=''; lb.style.left=''; lb.style.right=''; lb.style.top=''; lb.style.height=''; // rétablit le comportement CSS d'origine
     var f=document.getElementById('lbFrame');
     f.src=''; f.style.display='none'; // stoppe la démo + recalcul propre à la prochaine ouverture
     document.getElementById('lbImg').src='';
