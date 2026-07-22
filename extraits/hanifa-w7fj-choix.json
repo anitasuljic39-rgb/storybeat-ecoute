@@ -1,0 +1,15 @@
+{
+  "prenom": "hanifzff",
+  "versions": [
+    {
+      "label": "Version A",
+      "media": "https://storybeat.b-cdn.net/hanifa-w7fj/hanifa-w7fj-a-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=hanifa-w7fj-a"
+    },
+    {
+      "label": "Version B",
+      "media": "https://storybeat.b-cdn.net/hanifa-w7fj/hanifa-w7fj-b-extrait.mp4",
+      "final": "https://ecoute.storybeat.fr/?id=hanifa-w7fj-b"
+    }
+  ]
+}
